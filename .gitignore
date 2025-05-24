@@ -100,6 +100,7 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.env
 
 # System Files
 .DS_Store
