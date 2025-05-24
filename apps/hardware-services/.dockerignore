@@ -1,0 +1,24 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Logs
+*.log
+
+# Git and IDE
+.git/
+.gitignore
+.vscode/
+.idea/
+.DS_Store
+
+# Build artifacts (optional)
+dist/
+build/
