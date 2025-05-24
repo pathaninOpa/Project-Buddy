@@ -21,13 +21,15 @@ wheels/
 *.egg
 MANIFEST
 .env
-.venv
-env/
+.python-version
+
+# Virtual Environment
+.venv/
 venv/
 ENV/
+env/
 env.bak/
 venv.bak/
-.python-version
 
 # Flutter/Dart
 .dart_tool/
@@ -62,7 +64,10 @@ migrate_working_dir/
 
 # Node
 node_modules/
-
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
 # Docker
 .docker/
@@ -105,12 +110,10 @@ Thumbs.db
 
 # Project specific
 # Hardware Services
-apps/hardware-services/venv/
 apps/hardware-services/__pycache__/
 apps/hardware-services/*.pyc
 
 # AI Pipeline
-apps/ai-pipeline/venv/
 apps/ai-pipeline/__pycache__/
 apps/ai-pipeline/*.pyc
 
