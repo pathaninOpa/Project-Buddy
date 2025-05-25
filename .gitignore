@@ -16,6 +16,12 @@ node_modules/
 .docker/
 docker-compose.override.yml
 
+# Fine-tuning datas
+finetuning-corpus/*
+
+# Fine-tuned Models
+finetuned-model/*
+
 # Logs
 logs/
 *.log
