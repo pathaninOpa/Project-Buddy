@@ -1,7 +1,6 @@
 # Python
 .env
 
-
 # Virtual Environment
 .venv/
 venv/
@@ -16,6 +15,8 @@ node_modules/
 .docker/
 docker-compose.override.yml
 
+#corpus files
+corpus/*
 # Fine-tuning datas
 finetuning-corpus/*
 
