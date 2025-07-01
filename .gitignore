@@ -24,7 +24,7 @@ finetuning-corpus/*
 finetuned-model/*
 
 #service accounts
-secrets/*
+apps/ai-pipeline/secrets/*
 
 # Logs
 logs/
@@ -33,3 +33,4 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log* 
 pnpm-debug.log* 
+
