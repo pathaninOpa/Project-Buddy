@@ -7,7 +7,7 @@ import soundfile as sf
 import re
 from colorama import Fore, Style, init
 import wave
-from scipy.signal import butter, lfilter  # <-- Added
+from scipy.signal import butter, lfilter  
 
 init(autoreset=True)
 NEON_GREEN = Fore.GREEN
@@ -68,18 +68,14 @@ def save_wav(filename, audio_bytes, sample_rate=16000):
 def transcribe_audio_bytes(audio_bytes):
     audio_np = np.frombuffer(audio_bytes, dtype=np.int16)
 
-    # Apply high-pass filter to remove low-frequency hum
     audio_np = highpass_filter(audio_np)
 
-    # 🔇 Skip too quiet audio
     if np.sqrt(np.mean(audio_np.astype(np.float32)**2)) < 50:
         return ""
 
-    # 🔊 Normalize
     audio_np = normalize_audio(audio_np)
     float_audio = audio_np.astype(np.float32) / 32768.0
 
-    # 🧠 Transcribe
     buffer = io.BytesIO()
     sf.write(buffer, float_audio, 16000, format='WAV')
     buffer.seek(0)
@@ -87,7 +83,6 @@ def transcribe_audio_bytes(audio_bytes):
     segments, _ = model.transcribe(buffer, language="th", beam_size=1)
     transcript = ' '.join(segment.text for segment in segments).strip()
 
-    # 🧹 Filter hallucinations
     if not transcript or not is_mostly_thai(transcript):
         return ""
 
