@@ -1,10 +1,8 @@
-# if never have venv use: python -m venv venv
-install-ai-%:
-	.\\venv\\Scripts\\activate && pip install "$(subst install-ai-,,$@)"
-	.\\venv\\Scripts\\activate && pip freeze > requirements.txt
+# if never have venv use: python -m venv venv then ./venv/Scripts/activate
 
-checkdp-ai:
-	.\\venv\\Scripts\\activate && pip list
+freeze:
+	pip freeze > requirements.txt
+
 build-ai:
 	docker compose up --build ai
 	docker image prune -f

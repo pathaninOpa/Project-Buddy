@@ -1,7 +1,10 @@
-install-hardware-%:
-	python -m venv venv
-	.\\venv\\Scripts\\activate && pip install "$(subst install-hardware-,,$@)"
-	.\\venv\\Scripts\\activate && pip freeze > requirements.txt
+# if never have venv use: python -m venv venv
+
+freeze:
+	pip freeze > requirements.txt
+
+activate:
+	.\\venv\\Scripts\\activate
 
 build-hardware:
 	docker compose up --build hardware
