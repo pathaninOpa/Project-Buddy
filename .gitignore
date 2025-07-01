@@ -23,6 +23,9 @@ finetuning-corpus/*
 # Fine-tuned Models
 finetuned-model/*
 
+#service accounts
+secrets/*
+
 # Logs
 logs/
 *.log
