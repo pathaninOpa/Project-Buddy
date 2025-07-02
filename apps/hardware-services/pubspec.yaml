@@ -10,6 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
 
+  stream_video: ^latest
+  stream_video_flutter: ^latest
+  stream_video_push_notification: ^latest
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
