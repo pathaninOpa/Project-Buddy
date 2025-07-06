@@ -2,7 +2,6 @@ from faster_whisper import WhisperModel
 import numpy as np
 import webrtcvad
 import soundfile as sf
-from colorama import Fore, Style, init
 import re
 from scipy.signal import butter, lfilter
 import requests
@@ -127,7 +126,7 @@ class TTS:
         inputText = texttospeech.SynthesisInput(text=lmResponse)
         audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.LINEAR16)
         response = self.client.synthesize_speech(input=inputText,voice=self.voice, audio_config= audio_config)
-        print("AI Voice Generated: ",lmResponse)
+        print("AI Voice Generated:", lmResponse)
         return bytearray(response.audio_content)
 
 class RUN:

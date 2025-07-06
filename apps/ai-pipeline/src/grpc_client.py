@@ -10,10 +10,30 @@ from audio_processor import AudioProcessor
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
-FRAME_DURATION = 30  # ms
+FRAME_DURATION = 30
 FRAME_SIZE = int(RATE * FRAME_DURATION / 1000)
-BUFFER_DURATION = 1  # seconds
+BUFFER_DURATION = 1
 MAX_BUFFER_FRAMES = int(BUFFER_DURATION * 1000 / FRAME_DURATION)
+server_crt = """-----BEGIN CERTIFICATE-----
+MIIDLjCCAhagAwIBAgIUTSD75uKATgqqm8vODodKPlb7jkcwDQYJKoZIhvcNAQEL
+BQAwGTEXMBUGA1UEAwwOYXBpLmJ1ZGR5LnJlc3QwHhcNMjUwNzA2MTQ1ODU0WhcN
+MjYwNzA2MTQ1ODU0WjAZMRcwFQYDVQQDDA5hcGkuYnVkZHkucmVzdDCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAJQH2ycwogpVfSVO35RYo3AHii2B/ZFG
+T9q5RkyJNUdTJp93yaZ6zQdZbVgN19/XsA9o8yhjtFnPSSvTCR+eVK9fpSW7fbFf
+dvzflcsMolwHK4I7Daujv8zBjuEd5epERgeb1RjziHCQlNzfHINeQ50SRO8ABQwz
+mWQupE8Cs3a2RmasQdEBSaua/AUEtrDvfW2qqANkTAZJmira9h0IQ+dScrnwT+do
+HmPkEdlD/iCb9qi6DGmbZK8fDbX5JftK9KqDeOZUoFMuz+6nEN3CtPcWdSjx5sGz
+layiO+7bW+OC1tVx+7pfV3kYpO5YzNunnt7chDvoFgg2mXQJCe7VmJsCAwEAAaNu
+MGwwHQYDVR0OBBYEFC5sGc1VHa9bkmavMWJ3IUrO9wtbMB8GA1UdIwQYMBaAFC5s
+Gc1VHa9bkmavMWJ3IUrO9wtbMA8GA1UdEwEB/wQFMAMBAf8wGQYDVR0RBBIwEIIO
+YXBpLmJ1ZGR5LnJlc3QwDQYJKoZIhvcNAQELBQADggEBACDPozL2wud8sHNRyFXz
+vbPf1nnTS7Mf8m6jKRE+FCbnq1AHe5jne7E7GKAz2FlsZZEGM2lwuwHcMsiG1m3f
+ZNVhiVkYh5En4UvasnncTo2m1e02fxz8olp7WRWDJOLPGkEPuxQLCLpwSUYCyr5o
+nDdLKpLEEOwe/Rnzb+7c2DbPmmHyQ6muVoL0b5xBHyJRJk3Porz3NwpwmI9TR6Yp
+b+ItVimNRON6hullPxvEqH1nNWbgjBlCzXXxugH7MEhzwYME6o++XSPkPRIVCc4X
+jkaTyKE2sR9kyPXgTLfPu3Du21ybvQLMy/z7mUPGQXmKIiYYLZ/d1XiNtcgfHlWL
+ihc=
+-----END CERTIFICATE-----"""
 
 class AudioStreamer:
     def __init__(self):
@@ -79,7 +99,10 @@ class AudioStreamer:
 
 def run_speech_pipeline(audio_data):
     # init gRPC channel
-    channel = grpc.insecure_channel('localhost:50051')
+    trusted_certs = server_crt.encode("utf-8")
+    credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs)
+
+    channel = grpc.secure_channel('api.buddy.rest:50051', credentials)
     stub = speech_service_pb2_grpc.SpeechServiceStub(channel)
 
     request = speech_service_pb2.AudioRequest(
