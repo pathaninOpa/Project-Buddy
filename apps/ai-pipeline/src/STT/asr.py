@@ -77,7 +77,7 @@ def transcribe_audio_bytes(audio_bytes):
     float_audio = audio_np.astype(np.float32) / 32768.0
 
     buffer = io.BytesIO()
-    sf.write(buffer, float_audio, 16000, format='WAV')
+    sf.write(buffer, float_audio, 16000, format='MP3')
     buffer.seek(0)
 
     segments, _ = model.transcribe(buffer, language="th", beam_size=1)
