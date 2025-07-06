@@ -1,4 +1,4 @@
-name: flutter_application_1
+name: main
 description: "A new Flutter project."
 publish_to: 'none'
 version: 0.1.0
@@ -10,9 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
 
-  stream_video: ^latest
-  stream_video_flutter: ^latest
-  stream_video_push_notification: ^latest
+  stream_video: ^0.7.0
+  stream_video_flutter: ^0.7.0
+  stream_video_push_notification: ^0.7.0
+
 
 dev_dependencies:
   flutter_test:

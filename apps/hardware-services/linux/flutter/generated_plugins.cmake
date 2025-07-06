@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  stream_webrtc_flutter
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
