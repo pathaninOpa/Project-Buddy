@@ -1,21 +1,39 @@
+
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:stream_video_flutter/stream_video_flutter.dart';
 
-void main() => runApp(ChatBotFaceApp());
+void main() {
+  final client = StreamVideo(
+    'btCkosupZ1Vq', // Replace with your actual API key
+    user: User.regular(userId: 'IG_88', role: 'admin', name: 'Suttikarn'),
+    userToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb250by5nZXRzdHJlYW0uaW8iLCJzdWIiOiJ1c2VyL0lHXzg4IiwidXNlcl9pZCI6IklHXzg4IiwidmFsaWRpdHlfaW5fc2Vjb25kcyI6NjA0ODAwLCJpYXQiOjE3NTE0NTUxNDAsImV4cCI6MTc1MjA1OTk0MH0.XOkgQ5q2LJw-3TR6dK4GMXBSQf_R2ZW1bmYy0GArIxs', // Replace with your user token
+  );
+
+  runApp(ChatBotFaceApp(client: client));
+}
 
 class ChatBotFaceApp extends StatelessWidget {
+  final StreamVideo client;
+
+  const ChatBotFaceApp({super.key, required this.client});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: ChatBotFaceScreen(),
+      home: ChatBotFaceScreen(client: client),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class ChatBotFaceScreen extends StatefulWidget {
+  final StreamVideo client;
+
+  const ChatBotFaceScreen({super.key, required this.client});
+
   @override
-  _ChatBotFaceScreenState createState() => _ChatBotFaceScreenState();
+  State<ChatBotFaceScreen> createState() => _ChatBotFaceScreenState();
 }
 
 class _ChatBotFaceScreenState extends State<ChatBotFaceScreen>
@@ -148,7 +166,7 @@ class _ChatBotFaceScreenState extends State<ChatBotFaceScreen>
             left: (size.width / 2) - 45,
             child: _buildMouth(),
           ),
-          // Input field
+          // Input + video call button
           Positioned(
             bottom: 20,
             left: 20,
@@ -159,7 +177,7 @@ class _ChatBotFaceScreenState extends State<ChatBotFaceScreen>
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
-                      hintText: 'Say something...',
+                      hintText: 'พิมพ์ข้อความ...',
                       fillColor: Colors.white,
                       filled: true,
                       border: OutlineInputBorder(),
@@ -171,11 +189,54 @@ class _ChatBotFaceScreenState extends State<ChatBotFaceScreen>
                   onPressed: _onSendMessage,
                   child: Text("Send"),
                 ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            VideoCallScreen(client: widget.client),
+                      ),
+                    );
+                  },
+                  child: Icon(Icons.video_call),
+                ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class VideoCallScreen extends StatefulWidget {
+  final StreamVideo client;
+
+  const VideoCallScreen({Key? key, required this.client}) : super(key: key);
+
+  @override
+  State<VideoCallScreen> createState() => _VideoCallScreenState();
+}
+
+class _VideoCallScreenState extends State<VideoCallScreen> {
+  late final Call call;
+
+  @override
+  void initState() {
+    super.initState();
+    call = widget.client.makeCall(
+      callType: StreamCallType.defaultType(),
+      id: 'test-call',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Video Call')),
+      body: StreamCallContainer(call: call),
     );
   }
 }
