@@ -1,11 +1,83 @@
-FROM python:3.13.3-alpine
+FROM python:3.11-slim
 
-WORKDIR /src
+# Set work directory
+WORKDIR /app
 
-COPY apps/ai-pipeline/requirements.txt ./
+# Install system dependencies for audio, pyaudio, and ffmpeg
+RUN apt-get update && apt-get install -y \
+    portaudio19-dev \
+    ffmpeg \
+    libsndfile1 \
+    git \
+    curl \
+    build-essential \
+    libasound2 \
+    libasound-dev \
+    alsa-utils \
+    pulseaudio \
+    python3-pyaudio \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir -r requirements.txt
+# Configure ALSA and PulseAudio
+RUN mkdir -p /etc/alsa && \
+    echo 'pcm.!default {\n\
+  type pulse\n\
+  fallback "sysdefault"\n\
+}\n\
+ctl.!default {\n\
+  type pulse\n\
+  fallback "sysdefault"\n\
+}\n\
+pcm.pulse {\n\
+  type pulse\n\
+}\n\
+ctl.pulse {\n\
+  type pulse\n\
+}' > /etc/asound.conf && \
+    adduser --system --group --home /var/run/pulse pulse && \
+    adduser --system --group --home /var/run/pulse pulseaudio && \
+    usermod -aG audio,pulse,pulse-access root
 
-COPY apps/ai-pipeline/src/ ./
+# Create PulseAudio configuration
+RUN mkdir -p /etc/pulse && \
+    echo "default-server = unix:/tmp/pulseaudio.socket\n\
+autospawn = no\n\
+daemon-binary = /bin/true\n\
+enable-shm = false" > /etc/pulse/client.conf
 
-CMD ["python", "main.py"]
+# Install Ollama
+RUN curl -fsSL https://ollama.com/install.sh | sh
+ENV PATH="/root/.ollama/bin:$PATH"
+
+# Install Python dependencies
+COPY requirements.txt .
+ENV PYTHONPATH="/usr/local/lib/python3.11/site-packages:${PYTHONPATH}"
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir setuptools wheel && \
+    pip install --no-cache-dir 'numpy==2.2.6' && \
+    pip install --no-cache-dir 'scipy==1.15.3' && \
+    pip install --no-cache-dir pyaudio && \
+    pip install --no-cache-dir 'faster-whisper==1.1.1' 'webrtcvad==2.0.10' && \
+    pip install --no-cache-dir 'soundfile==0.13.1' && \
+    pip install --no-cache-dir 'google-cloud-texttospeech==2.21.0' && \
+    pip install --no-cache-dir 'python-dotenv==1.0.0' && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Install PyTorch with CUDA 11.8 support
+RUN pip install torch==2.2.2+cu118 torchvision==0.17.2+cu118 torchaudio==2.2.2+cu118 --index-url https://download.pytorch.org/whl/cu118
+
+# Copy source code and env
+COPY . .
+COPY .env .env
+
+# Expose Ollama port
+EXPOSE 11434
+
+# Runtime startup: start audio services, Ollama, and run the application
+CMD ["sh", "-c", "\
+    pulseaudio -D --exit-idle-time=-1 && \
+    sleep 2 && \
+    ollama serve & \
+    sleep 3 && \
+    ollama pull gemma3:4b && \
+    python src/STS/test.py"]

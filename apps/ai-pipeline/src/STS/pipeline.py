@@ -2,7 +2,6 @@ from faster_whisper import WhisperModel
 import numpy as np
 import webrtcvad
 import soundfile as sf
-from colorama import Fore, Style, init
 import re
 from scipy.signal import butter, lfilter
 import requests
@@ -13,6 +12,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import time
 import traceback
+import torch
 
 load_dotenv()
 ttsKey = os.getenv("TTSKEY")
@@ -23,7 +23,16 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = full_path
 
 class STT:
     def __init__(self):
-        self.model = WhisperModel("large-v3", device='cuda', compute_type="int8_float16")
+        if torch.cuda.is_available():
+            self.device = "cuda"
+            self.compute_type = "int8_float16"
+        elif torch.backends.mps.is_available():
+            self.device = "cpu"
+            compute_type = "int8"
+        else:
+            self.device = "cpu"
+            compute_type = "int8"
+        self.model = WhisperModel("large-v3", self.device, compute_type=compute_type)
         self.vad = webrtcvad.Vad(1)
 
     def highpass_filter(self, audio_np, sr=16000, cutoff=100):
@@ -127,7 +136,7 @@ class TTS:
         inputText = texttospeech.SynthesisInput(text=lmResponse)
         audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.LINEAR16)
         response = self.client.synthesize_speech(input=inputText,voice=self.voice, audio_config= audio_config)
-        print("AI Voice Generated: ",lmResponse)
+        print("AI Voice Generated:", lmResponse)
         return bytearray(response.audio_content)
 
 class RUN:
