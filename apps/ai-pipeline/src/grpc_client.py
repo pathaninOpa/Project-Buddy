@@ -99,10 +99,11 @@ class AudioStreamer:
 
 def run_speech_pipeline(audio_data):
     # init gRPC channel
-    trusted_certs = server_crt.encode("utf-8")
-    credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs)
+    # trusted_certs = server_crt.encode("utf-8")
+    # credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs)
 
-    channel = grpc.secure_channel('api.buddy.rest:50051', credentials)
+    # channel = grpc.secure_channel('api.buddy.rest:50051', credentials)
+    channel = grpc.insecure_channel('localhost:50051')
     stub = speech_service_pb2_grpc.SpeechServiceStub(channel)
 
     request = speech_service_pb2.AudioRequest(

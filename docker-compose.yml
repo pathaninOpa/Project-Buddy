@@ -39,24 +39,12 @@ services:
     tty: true
 
   ai:
-    build: ./apps/ai-pipeline
+    build:
+      context: .
+      dockerfile: apps/ai-pipeline/dockerfile
     container_name: buddy-ai
     ports:
       - "${AI_PORT}:${AI_CONTAINER_PORT}"
     volumes:
       - ./apps/ai-pipeline:/app
-    devices:3
-
-
-    +
-00      - /dev/snd:/dev/snd
-    environment:
-      - PULSE_SERVER=unix:/tmp/pulseaudio.socket
-      - PULSE_COOKIE=/tmp/pulseaudio.cookie
-      - ALSA_CARD=0
-    group_add:
-      - audio
-    env_file:
-      - ./apps/ai-pipeline/.env
-    privileged: true
-    network_mode: host  # This helps with audio device access  # Required for audio device access
+    command: python main.py

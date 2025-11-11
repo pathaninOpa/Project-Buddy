@@ -35,3 +35,11 @@ yarn-error.log*
 pnpm-debug.log* 
 
 __pycache__/
+
+*.DS_Store
+
+GEMINI.md
+
+*.python-version
+
+*.pyc
