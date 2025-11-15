@@ -1,0 +1,6 @@
+framework module zego_uikit_signaling_plugin {
+  umbrella header "zego_uikit_signaling_plugin-umbrella.h"
+
+  export *
+  module * { export * }
+}

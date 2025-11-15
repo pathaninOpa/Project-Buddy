@@ -1,0 +1,11 @@
+framework module native_device_orientation {
+  umbrella header "native_device_orientation-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module native_device_orientation.Swift {
+  header "native_device_orientation-Swift.h"
+  requires objc
+}
