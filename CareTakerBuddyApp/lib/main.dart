@@ -174,7 +174,7 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             GestureDetector(
               onTap: _addBuddy,
               child: Column(
@@ -689,8 +689,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               onPrimary: Colors.black, // Text color on primary
               surface: Color(0xFF162D41), // Background of the picker
               onSurface: Colors.white, // Text color on surface
-            ),
-            dialogBackgroundColor: const Color(0xFF162D41),
+            ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF162D41)),
           ),
           child: child!,
         );
@@ -717,8 +716,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               onPrimary: Colors.black, // Text color on primary
               surface: Color(0xFF162D41), // Background of the picker
               onSurface: Colors.white, // Text color on surface
-            ),
-            dialogBackgroundColor: const Color(0xFF162D41),
+            ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF162D41)),
           ),
           child: child!,
         );
