@@ -43,10 +43,25 @@ class CareGiver{
   }
 }
 
-
 class Buddy {
   String name;
   String imagePath;
 
   Buddy({required this.name, required this.imagePath});
+}
+
+
+class Event {
+  String title;
+  String description;
+  String time; 
+  DateTime date;
+  bool isAnnounced;
+ 
+  Event({
+    required this.title,
+    required this.description,
+    required this.time,
+    required this.date,
+    required this.isAnnounced});
 }
