@@ -1,0 +1,42 @@
+FROM cirrusci/flutter:3.32
+
+WORKDIR /src
+
+# Install Android SDK, iOS tools, and necessary dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    unzip \
+    xz-utils \
+    zip \
+    libglu1-mesa \
+    openjdk-11-jdk \
+    ruby \
+    ruby-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install CocoaPods
+RUN gem install cocoapods
+
+# Accept Android licenses
+RUN yes | sdkmanager --licenses
+
+# Copy pubspec files first for better caching
+COPY pubspec.* ./
+RUN flutter pub get
+
+# Copy the rest of the application
+COPY . .
+
+# Enable Android debugging
+ENV ANDROID_HOME=/usr/local/android-sdk
+ENV PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+
+# iOS development environment
+ENV PATH=${PATH}:/usr/local/bin
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+CMD ["/bin/bash"]
