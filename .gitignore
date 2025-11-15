@@ -1,6 +1,6 @@
 # Python
 .env
-
+*.vscode
 # Virtual Environment
 .venv/
 venv/
