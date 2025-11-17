@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/native_device_orientation-Swift.h</key>
 		<data>
-		T7eLAL8wo8yM9lWrbyd0aC8PujE=
+		HaGem1Mg5z2y779v9x/hwcx1PsE=
 		</data>
 		<key>Headers/native_device_orientation-umbrella.h</key>
 		<data>
@@ -14,7 +14,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		sdTPQMTjQdMdhNVS1VXg0Exx1II=
+		9py9BsKZr31l70ZTk2wbTW0mEk0=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -22,35 +22,35 @@
 		</data>
 		<key>Modules/native_device_orientation.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		VeR31wYoCNgjUJrb/TJ3kiBfI04=
+		0kMrewJyvbWWbNkoiKicSSqsIhM=
 		</data>
 		<key>Modules/native_device_orientation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		Mlzu+EPFzlVkRXbv5llQKUrEJgM=
+		QsOylRr+A/bXfVKxwd8mc86piLU=
 		</data>
 		<key>Modules/native_device_orientation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		FSPnLbho3G+LL9smI3XgVOqBIQ4=
+		gcwBsH4BgyFY4sVtNt+/xOKS3vY=
 		</data>
 		<key>Modules/native_device_orientation.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		j/F2f0GPO9RLF/6Uh2aT5C+tAGg=
+		vZ6CKmwPwtPuEb4sm1+0y9JB/Xo=
 		</data>
 		<key>Modules/native_device_orientation.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		LLIeMLn4f+c+o6RvdxkuJ9SrW5Y=
+		8NJyXPmu5fxdtrSFDoOjZ+Cj5Us=
 		</data>
 		<key>Modules/native_device_orientation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		FSPnLbho3G+LL9smI3XgVOqBIQ4=
+		gcwBsH4BgyFY4sVtNt+/xOKS3vY=
 		</data>
 		<key>Modules/native_device_orientation.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		4SF7r54UhDhYwb3R8imoMZIbnmg=
+		92wbm69CmZLMuOUMewyxCDgqqgI=
 		</data>
 		<key>Modules/native_device_orientation.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		TkKYhTwQPtoUoZ7wI2pgntMbZ58=
+		QFHwmt3+32d+gh1JdWPXZvUrHO0=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -59,7 +59,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			rdb1MBkgFl8/MTSwwKOQwkcSuL2JRwdRHNHHuibvBxo=
+			yeihDsiO+xjCOR/jOLg9HpYkowrx0AIVEAHq1Nd+CHo=
 			</data>
 		</dict>
 		<key>Headers/native_device_orientation-umbrella.h</key>
@@ -80,56 +80,56 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			IQ8VzzVeQlbbifSa3d9ZRrvttAOsHOuCUZeIwR4PXTo=
+			DVjndBac0qMfGs20JTrPdNn1NuDHebid1Mfqa267eLo=
 			</data>
 		</dict>
 		<key>Modules/native_device_orientation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			FXBIf8BLbdCvMir6oMU3V7bjA9LqZ7DiwJftA1I0viU=
+			NM/Q7eSJ9BDzo7e1GXb27X0Xv2ib1I0yOQ4O+XYDaHU=
 			</data>
 		</dict>
 		<key>Modules/native_device_orientation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KnRdWE4y6t4QM5zi5JDptPdHFgJy1Tku+7GLkZS2aNM=
+			Qnesa0n4URGWAopawg9bGx36dUwkYV00BoCJ8LFzlyg=
 			</data>
 		</dict>
 		<key>Modules/native_device_orientation.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			bMTFDO+6w5d1JjMGGk0N7T951vpcx8pc9PPU9WQndQ0=
+			Icpa6Dst4iM54vHU9K7krgUZz8kCvvBBJ8dP9YuE6R4=
 			</data>
 		</dict>
 		<key>Modules/native_device_orientation.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			kM+hu9E6conWwUF+J9CtGiv610nBXeQ8snVHFQFhXBQ=
+			ythlRLXHb9kdyQ6Nen2H91W+bAX1+RR/NVXgh/jL3nA=
 			</data>
 		</dict>
 		<key>Modules/native_device_orientation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KnRdWE4y6t4QM5zi5JDptPdHFgJy1Tku+7GLkZS2aNM=
+			Qnesa0n4URGWAopawg9bGx36dUwkYV00BoCJ8LFzlyg=
 			</data>
 		</dict>
 		<key>Modules/native_device_orientation.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			/aBvTMawdvOjooytRv8I97dwK3O8TtBnTTiK9yKSzKQ=
+			D5r8oNt7xyH3qJ6fcKRWi0G5tWT+2Aq5Dw4ebJ/nRE4=
 			</data>
 		</dict>
 		<key>Modules/native_device_orientation.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			9UOL5ybx26QjPTOgB9AXWMtLBM151mYBa89s2zglguI=
+			RlXgbOa9IqxUCDIPgQJ8+Q5EmaFEATEYfozD/N3Nwcs=
 			</data>
 		</dict>
 	</dict>

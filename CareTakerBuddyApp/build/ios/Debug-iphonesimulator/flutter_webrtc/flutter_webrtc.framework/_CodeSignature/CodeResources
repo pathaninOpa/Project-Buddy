@@ -122,7 +122,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		Y9Y0hNyZKVHMdObU1Iw8aUYaNE4=
+		UpfxStaRekIc0pQbEK1qlBpHSI8=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -133,10 +133,6 @@
 	<dict>
 		<key>Headers/AudioManager.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			QrL3IrpAX1Duo/QdMcH/IEv5QvY=
-			</data>
 			<key>hash2</key>
 			<data>
 			h/zXlDG2hiBb6IkpeY04zNa/cmKfL7JU1uLPdLfIPGk=
@@ -144,10 +140,6 @@
 		</dict>
 		<key>Headers/AudioProcessingAdapter.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			vbGDJPk/dB6WqES3hG9U/Aq/hog=
-			</data>
 			<key>hash2</key>
 			<data>
 			GyAZaXeuLgXmaE+X7w8SQNPkB8PVozaXvv6Bssb8bCs=
@@ -155,10 +147,6 @@
 		</dict>
 		<key>Headers/AudioUtils.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			vLUjPrci+isGJSqfLgr3YRmS96I=
-			</data>
 			<key>hash2</key>
 			<data>
 			ZecyN9D7FSCLtAENKeo7dsvNioNvWKNmpikfsWMnrXw=
@@ -166,10 +154,6 @@
 		</dict>
 		<key>Headers/CameraUtils.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			+vKQEpIx94to84VNYB3g8ZO+HpA=
-			</data>
 			<key>hash2</key>
 			<data>
 			oK0ZeXsQjHv0NTQzM3B3UkaWzIlchscrfDa7EODD2gs=
@@ -177,10 +161,6 @@
 		</dict>
 		<key>Headers/FlutterBroadcastScreenCapturer.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			8XIhyT8qo6b/vaQ9nyd9fAO3RGE=
-			</data>
 			<key>hash2</key>
 			<data>
 			F/kyQynOEkS+JDanFP+6a8GbjOy6PrMu7yxuNgV3p7s=
@@ -188,10 +168,6 @@
 		</dict>
 		<key>Headers/FlutterRPScreenRecorder.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			q6j6P8q946BVH9JW3thukB9b9f4=
-			</data>
 			<key>hash2</key>
 			<data>
 			YqaduQAleFi2qP4xiLx4fmEDrOuteaY/M8xbNMHk0Ok=
@@ -199,10 +175,6 @@
 		</dict>
 		<key>Headers/FlutterRTCAudioSink-Interface.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			ifvPwDDyHkjmT9iALIBVmP5ZZ6w=
-			</data>
 			<key>hash2</key>
 			<data>
 			LJf4/s+VdFxC3pv96eDZocRwl+KcoLSyFzqzzZHXhk4=
@@ -210,10 +182,6 @@
 		</dict>
 		<key>Headers/FlutterRTCAudioSink.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			9ucnk60kyl/oqBpUw3MpIKrIAJ4=
-			</data>
 			<key>hash2</key>
 			<data>
 			Wx9nhlQwkQFojCznMsmLHTpiNoE+d2xxMq2WT/k5hCg=
@@ -221,10 +189,6 @@
 		</dict>
 		<key>Headers/FlutterRTCDataChannel.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			NdU7aVC1ZBdIchGJ0o6IAkLP6pc=
-			</data>
 			<key>hash2</key>
 			<data>
 			15HkINn1kHX3o/vsofmlq3tEuvHS8UK+WiTwi/o0hKY=
@@ -232,10 +196,6 @@
 		</dict>
 		<key>Headers/FlutterRTCDesktopCapturer.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			n6+csXrLTyF1GJvP8Yn8YGXpewY=
-			</data>
 			<key>hash2</key>
 			<data>
 			R0BmWxuI6tLXMupEsqg2DbXvtJMwha35o/sG23CqOeY=
@@ -243,10 +203,6 @@
 		</dict>
 		<key>Headers/FlutterRTCFrameCapturer.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			SAZhEqO1OGuWdml+nBCT0J+O2ng=
-			</data>
 			<key>hash2</key>
 			<data>
 			gxoiw7mp02XSFChLfRo+WzbEHK2kDPqsp6QqhlwudIs=
@@ -254,10 +210,6 @@
 		</dict>
 		<key>Headers/FlutterRTCFrameCryptor.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			iBWxyA4SC1+77Vhfk1UoTm53vnY=
-			</data>
 			<key>hash2</key>
 			<data>
 			asf4QdCJv0y8f9rizOg0LeSPKbbQpKEYSZhzdozjt8o=
@@ -265,10 +217,6 @@
 		</dict>
 		<key>Headers/FlutterRTCMediaRecorder.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			7BAhO8wdMok+jIPV/xaD42Hl0rw=
-			</data>
 			<key>hash2</key>
 			<data>
 			EvGsf6mQnBo84Ccmh/IJO6p4qtTiGmfvM1ja9IRCUNY=
@@ -276,10 +224,6 @@
 		</dict>
 		<key>Headers/FlutterRTCMediaStream.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			FljlYRdvba62+fB1reodfqwPkzo=
-			</data>
 			<key>hash2</key>
 			<data>
 			Qxz44AQlDwHpiitAvrToTkJgQT9lPuR7nQb6vfVHNjQ=
@@ -287,10 +231,6 @@
 		</dict>
 		<key>Headers/FlutterRTCPeerConnection.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			6vyTAKF9wMgFdCpL8OzYSKxLrGs=
-			</data>
 			<key>hash2</key>
 			<data>
 			Z03wkKdiePL/ZXof8nLG065DGpUe0R2AnvLCZc4vuww=
@@ -298,10 +238,6 @@
 		</dict>
 		<key>Headers/FlutterRTCVideoPlatformView.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			QP9GTRKUQJBIpyXS65ltZS1QS+8=
-			</data>
 			<key>hash2</key>
 			<data>
 			EGa3FLoKufkK8ACm6B/c8brbpC8owL5zzvA56hYlnic=
@@ -309,10 +245,6 @@
 		</dict>
 		<key>Headers/FlutterRTCVideoPlatformViewController.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			zeNH3dWkFv7rUK0EBChH6OUcYFY=
-			</data>
 			<key>hash2</key>
 			<data>
 			xyq3x66YqscaPt5y4cujFYFGNNtQWr/usMSL7BBJWCc=
@@ -320,10 +252,6 @@
 		</dict>
 		<key>Headers/FlutterRTCVideoPlatformViewFactory.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			y1VFvlXbtcMH4/9cwrszP90Sxmg=
-			</data>
 			<key>hash2</key>
 			<data>
 			aw3YpKLYO5IcglhwyizF8er+Ik2+M5waKhg92PX/AkM=
@@ -331,10 +259,6 @@
 		</dict>
 		<key>Headers/FlutterRTCVideoRenderer.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			nRyIzoF3M1DLP01zr9vUz5ScmRY=
-			</data>
 			<key>hash2</key>
 			<data>
 			F1cUc9mw1hunWJyv5Ht5NZfL68j0M5Kr1XEAJiMDsqU=
@@ -342,10 +266,6 @@
 		</dict>
 		<key>Headers/FlutterSocketConnection.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			ZGC3Uj3ZWJtEGcB3n5HloxZn9s8=
-			</data>
 			<key>hash2</key>
 			<data>
 			/bGQXJrcLXXyFMuEnR8liKCI7/gLbfXLAC/2za9pz2A=
@@ -353,10 +273,6 @@
 		</dict>
 		<key>Headers/FlutterSocketConnectionFrameReader.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			EUM1jsSgaZqauSYIYfgo1pgVJRU=
-			</data>
 			<key>hash2</key>
 			<data>
 			hZgAD60Yg+PyB/Ox1ccfhDK9tv02bgzKt4RyfDAucwY=
@@ -364,10 +280,6 @@
 		</dict>
 		<key>Headers/FlutterWebRTCPlugin.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			3ERIi9igIh4a4WOwoDuZi39fDQY=
-			</data>
 			<key>hash2</key>
 			<data>
 			ZFpWHV9nzCKfCm+MEeDQZBB4ZRksuBnSdEDjnpq4kO4=
@@ -375,10 +287,6 @@
 		</dict>
 		<key>Headers/LocalAudioTrack.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			3v9YhCw/bqgNgxtu4TIqWHuwALk=
-			</data>
 			<key>hash2</key>
 			<data>
 			aX5RDg900/g8QSuPNZyMel4984CeWCIMuZPF6UELCBI=
@@ -386,10 +294,6 @@
 		</dict>
 		<key>Headers/LocalTrack.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			khzeKBNl2nv5NHDMejhf79v+brM=
-			</data>
 			<key>hash2</key>
 			<data>
 			KVKfd9iwmUS6mqDjgRGif6ynueIn+0gh/EoNRqS4x8g=
@@ -397,10 +301,6 @@
 		</dict>
 		<key>Headers/LocalVideoTrack.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			TZw7eAoVCKuaUBHuM6dFsASneOo=
-			</data>
 			<key>hash2</key>
 			<data>
 			P4zjcnSjEJu9dlwauroqSmbBdgQNqhW5QS9dnNaXfH4=
@@ -408,10 +308,6 @@
 		</dict>
 		<key>Headers/RTCAudioSource+Private.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			yR9tiAArtujfY+6EBXcOqGsunWo=
-			</data>
 			<key>hash2</key>
 			<data>
 			4wKIQby+0lzyJAa7hY7es6g7Cc0b1WjVOyGzx7G8FJs=
@@ -419,10 +315,6 @@
 		</dict>
 		<key>Headers/VideoProcessingAdapter.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			tSwJpSQBltFTzvXJ1OBKXzypZCw=
-			</data>
 			<key>hash2</key>
 			<data>
 			5mwlsrilm3/Bzy1zyhc2ccSJM6lfkvSpMXRUDJOXAlU=
@@ -430,10 +322,6 @@
 		</dict>
 		<key>Headers/flutter_webrtc-umbrella.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			9TstrM5hmI9LQ1dEcu5cY8/5v3k=
-			</data>
 			<key>hash2</key>
 			<data>
 			X/DIjcKXV4W0KYyOZLUJiDnaTb+z33PLiqx2rvN6Ohs=
@@ -441,10 +329,6 @@
 		</dict>
 		<key>Headers/media_stream_interface.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			Q/0+9mGlOr6twki8b5MBcS3gKAA=
-			</data>
 			<key>hash2</key>
 			<data>
 			2WpoSy1zV2VQ/31v/v+rULq9QjGfPXjpIJ5YClp+hjU=
@@ -452,10 +336,6 @@
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			DZb9+V4vMqTouzWIzg9qpokHZ1Q=
-			</data>
 			<key>hash2</key>
 			<data>
 			ldX9HAsD2nniacoWNcVi5tSU0iJxjV2Xz3+gOdalkNw=

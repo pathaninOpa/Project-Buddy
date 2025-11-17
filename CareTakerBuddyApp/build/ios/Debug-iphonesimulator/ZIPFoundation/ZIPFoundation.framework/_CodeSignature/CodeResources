@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/ZIPFoundation-Swift.h</key>
 		<data>
-		W7ZXpCwrzESf69P3Tz7c20vJR+4=
+		au754RWdn3pii/VlHpr+b0ObPcE=
 		</data>
 		<key>Headers/ZIPFoundation-umbrella.h</key>
 		<data>
@@ -14,39 +14,39 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		rmAUTh0pT9UJ345YyYxUBy0TNRg=
+		mIeLTR+QblkykkiAR0eQF2/8qs8=
 		</data>
 		<key>Modules/ZIPFoundation.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		HFUp81Vn2H08o5bh1kZL1i5whG4=
+		JHF7VnEL6v7q9EJXAevUSTCb/rw=
 		</data>
 		<key>Modules/ZIPFoundation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		RNrCo4PkSSj7tioTaqUrdKEoa9g=
+		+I3j1DbHNF+DQUXwHHjuIxHm2+g=
 		</data>
 		<key>Modules/ZIPFoundation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		FSPnLbho3G+LL9smI3XgVOqBIQ4=
+		gcwBsH4BgyFY4sVtNt+/xOKS3vY=
 		</data>
 		<key>Modules/ZIPFoundation.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		rWipESCzf3r5ny+4QDF3XJ3EUlI=
+		qiq9OmzEZp+uFV3bJ9PHD8ZIi4k=
 		</data>
 		<key>Modules/ZIPFoundation.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		q967exGIWrJx/aikdcy+wl6nhW4=
+		TvSjZPaD1ODis9QVItEWKFdDXv4=
 		</data>
 		<key>Modules/ZIPFoundation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		FSPnLbho3G+LL9smI3XgVOqBIQ4=
+		gcwBsH4BgyFY4sVtNt+/xOKS3vY=
 		</data>
 		<key>Modules/ZIPFoundation.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		NGUrjCkgu6YAPxNz2d44KtUDRZk=
+		bDtedU+hIcvqMZ29kQiaSMgRqcU=
 		</data>
 		<key>Modules/ZIPFoundation.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		os7X/X4dzZxV+smLH+hqYCmxd/I=
+		0SGHtR9zWLphGb69FQms7i1mwZo=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -54,7 +54,7 @@
 		</data>
 		<key>ZIPFoundation_Privacy.bundle/Info.plist</key>
 		<data>
-		Uu63d/Fe+KFWu8LDZbbwUen6YfY=
+		0KHWrvDsiX9Xla5NoqDNbFHRN4M=
 		</data>
 		<key>ZIPFoundation_Privacy.bundle/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -67,7 +67,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			/uWiLm8VP9g185ykjGaj2X2O9HRDikaqsnGMX3HY1eQ=
+			jAxtCs6VnFkIKQhxTTojIV5HUz22+5WvffD3z9ElqVg=
 			</data>
 		</dict>
 		<key>Headers/ZIPFoundation-umbrella.h</key>
@@ -81,56 +81,56 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			DJXsYSEMsXbgdxzgj9lLJg0boAQQ4GsosJ1GaRDrCJQ=
+			7X2rF8/tJq3QXjgh6Ck7Z4/qNi2L2F0rHpQC5UOGffY=
 			</data>
 		</dict>
 		<key>Modules/ZIPFoundation.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			RHC+61/iSH7h3HnNzoe8U3AXBgKXVh8c33D2GxVLEOE=
+			Vck0x2GwDiozagv8RnIDGr5CGkB+xssby8shUgJL5ME=
 			</data>
 		</dict>
 		<key>Modules/ZIPFoundation.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KnRdWE4y6t4QM5zi5JDptPdHFgJy1Tku+7GLkZS2aNM=
+			Qnesa0n4URGWAopawg9bGx36dUwkYV00BoCJ8LFzlyg=
 			</data>
 		</dict>
 		<key>Modules/ZIPFoundation.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			xXwrLo3Ajot3LqyCh3IlwFG6CFtGfTlm01m5O4ijIRg=
+			5XzpWdspYE0SoKNatHeE1IifFKJ0jRD0afSKcJop69Q=
 			</data>
 		</dict>
 		<key>Modules/ZIPFoundation.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			/kimOEdE0e3j6zwa/BrlNxKAefCcU91WkTEjwBnUAQM=
+			X7l9sM6eHwdPdPOJZ1jQUs7Be1RfPVkloyS44ycPZRU=
 			</data>
 		</dict>
 		<key>Modules/ZIPFoundation.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KnRdWE4y6t4QM5zi5JDptPdHFgJy1Tku+7GLkZS2aNM=
+			Qnesa0n4URGWAopawg9bGx36dUwkYV00BoCJ8LFzlyg=
 			</data>
 		</dict>
 		<key>Modules/ZIPFoundation.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			D29ra+4QWdo9g/LRgD8r9Ch5T7xotuACDkiXJ6dGwSI=
+			xMyo3ava6xyOppQ81iMyhph+xDSDA/uvEVa6SSHqjn4=
 			</data>
 		</dict>
 		<key>Modules/ZIPFoundation.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			uE7QurxQm9HOWDD6G45HOZi/wmikM+0t0JXnyO8vz60=
+			YKBGSu2uqJJw/MuEnvY1IBAwdDMwv3z+16dh7L4IlEE=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -144,7 +144,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			D3cv9DYLcoWC2Z+PGTCQEYMK4g5f41U7nVul8jAWihg=
+			rxIiAVQkEIjziS4dbn2kG9DE+NLFWR88Cd2ugQF9QYE=
 			</data>
 		</dict>
 		<key>ZIPFoundation_Privacy.bundle/PrivacyInfo.xcprivacy</key>

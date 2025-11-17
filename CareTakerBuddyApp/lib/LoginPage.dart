@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutterapp01/main.dart';
+import 'package:flutterapp01/GoogleSignIn.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -36,11 +39,30 @@ class LoginPage extends StatelessWidget {
 
               // Google Sign In Button (Material style)
               GestureDetector(
-                onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const BuddyHomePage()),
+                onTap: () async { // 1. Make the callback async
+                  try {
+                    // 2. Call your asynchronous sign-in function and await its result
+                    final UserCredential userCredential = await signInWithGoogle(); 
+
+                    // 3. Check if the sign-in was successful (e.g., if a user is returned)
+                    if (userCredential.user != null) {
+                      
+                      // 4. Navigate to the BuddyHomePage on success
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const BuddyHomePage()),
+                      );
+                      
+                    }
+                  } catch (e) {
+                    // 5. Handle errors (e.g., user cancels sign-in, network error, etc.)
+                    print("Google Sign-In Failed: $e");
+                    
+                    // Optionally show a SnackBar or AlertDialog to the user
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Sign-in failed. Please try again.")),
                     );
+                  }
                 },
                 child: Container(
                   height: 50,

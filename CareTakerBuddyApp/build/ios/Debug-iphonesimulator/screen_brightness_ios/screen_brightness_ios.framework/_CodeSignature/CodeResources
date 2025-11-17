@@ -10,7 +10,7 @@
 		</data>
 		<key>Headers/screen_brightness_ios-Swift.h</key>
 		<data>
-		vxH+Un+ITTjoHFkmyWn1pHYQtZs=
+		R9t8zvQG2nw50Y69AvObGhnuy54=
 		</data>
 		<key>Headers/screen_brightness_ios-umbrella.h</key>
 		<data>
@@ -18,7 +18,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		DtfWEjN74kvFifHAU8gmQuy639Q=
+		WU8RZks+jPI6B1hUxxQkuqteAb8=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -26,35 +26,35 @@
 		</data>
 		<key>Modules/screen_brightness_ios.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		tD2opyBlFKKyJv0Hc45bcaSIgWk=
+		ZnOg+1rlhUGWQSmi0INQ1ZUHwO4=
 		</data>
 		<key>Modules/screen_brightness_ios.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		/iX61M7FwH+FYB6R2bSzoSzkjLM=
+		a+j9FTGQDg8Su/C8mrNZKyDtBJ0=
 		</data>
 		<key>Modules/screen_brightness_ios.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		FSPnLbho3G+LL9smI3XgVOqBIQ4=
+		gcwBsH4BgyFY4sVtNt+/xOKS3vY=
 		</data>
 		<key>Modules/screen_brightness_ios.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		bkU4tIPr2hYXRjuXjV4NzzfOGmI=
+		ExH5tBXrG5grtPuY1BOwalZx7tU=
 		</data>
 		<key>Modules/screen_brightness_ios.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		wEDhML55CpYF9YzVE1gjl1n06lc=
+		pSHrV4GgGoslBZbWCwxxZBmOOiI=
 		</data>
 		<key>Modules/screen_brightness_ios.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		FSPnLbho3G+LL9smI3XgVOqBIQ4=
+		gcwBsH4BgyFY4sVtNt+/xOKS3vY=
 		</data>
 		<key>Modules/screen_brightness_ios.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		44oOa2qwfvHHygTDRwUDaHKtdrc=
+		T0dS1Wt62qsv0RwBuqOwwE+Yvcw=
 		</data>
 		<key>Modules/screen_brightness_ios.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		9/bz5hRfi5rgjO2a4o1TXyejGMQ=
+		eqAChEZPkNgE6N4QdOs7zamt7xc=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -70,7 +70,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			45h9tCRBkSs1AG7Ymu0sy0FyqkqGrvODnrC5kloXbAE=
+			EmSaJhrmBAW+C8HYz9zPnx6ek6Xc41Ajskpcp3ho0ts=
 			</data>
 		</dict>
 		<key>Headers/screen_brightness_ios-umbrella.h</key>
@@ -91,56 +91,56 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Ols6r8T20zE7hPlhIcbCfcGfKPNfBGUA7U7RA7AjPFw=
+			fPum2EPcg5F9I31WEnR4yHSex9sQKtNDTepj+S3FJVo=
 			</data>
 		</dict>
 		<key>Modules/screen_brightness_ios.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			u1PEsDcc5v4X9ulQVQVV5vfn947kTVJwFY8Q0ovQuis=
+			jUe5l4tdfgGJYmSyi5m5jFZOBJjVGnQKsfePu0jO7A0=
 			</data>
 		</dict>
 		<key>Modules/screen_brightness_ios.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KnRdWE4y6t4QM5zi5JDptPdHFgJy1Tku+7GLkZS2aNM=
+			Qnesa0n4URGWAopawg9bGx36dUwkYV00BoCJ8LFzlyg=
 			</data>
 		</dict>
 		<key>Modules/screen_brightness_ios.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			huWyBOU7fggowHcpmyIlYasrOuG4kZ7Jo2pN7ETMv+U=
+			1S5AGOzZc4I3vYAYRs7HLqxBmoGEBrnVOnDhfft2oE8=
 			</data>
 		</dict>
 		<key>Modules/screen_brightness_ios.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			VLjvV8r0fDkjQAAfapznRYooJoPMlGKraQgwt+OtEdk=
+			np5iOh3rJfK9q9UUZSkURPKzAdtaNkptsLJRK0gIZr4=
 			</data>
 		</dict>
 		<key>Modules/screen_brightness_ios.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KnRdWE4y6t4QM5zi5JDptPdHFgJy1Tku+7GLkZS2aNM=
+			Qnesa0n4URGWAopawg9bGx36dUwkYV00BoCJ8LFzlyg=
 			</data>
 		</dict>
 		<key>Modules/screen_brightness_ios.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			5DOrCzqQmg0HFADo1DQ09ABl2F8qoOR8UQC3JJcEqZw=
+			iunJlMSVJLTIvemrYJPMwq0uY19lTecYhanycuG/8ys=
 			</data>
 		</dict>
 		<key>Modules/screen_brightness_ios.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			laZJbBEV8t2VorY7rVaHhK9AuglH7zFLn+BdgIvCDXw=
+			MJ0P6fuwqF/rdVIP8PuMer2HjvYOylt7KjmP/zrZGUY=
 			</data>
 		</dict>
 	</dict>

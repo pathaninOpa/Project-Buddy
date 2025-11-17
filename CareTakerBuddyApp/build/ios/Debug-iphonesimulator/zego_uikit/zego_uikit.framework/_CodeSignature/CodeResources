@@ -22,7 +22,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		q6DYxyUnyUwxUDY7No3YMMvdwMI=
+		0jmsxTgD+GH3Q19M4aUR4sARQ6g=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -33,10 +33,6 @@
 	<dict>
 		<key>Headers/KitRemoteView.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			rsps3EH123DQiejK9E962v1a+ZE=
-			</data>
 			<key>hash2</key>
 			<data>
 			3B5tcSvhPkeGcO0VaTIrLwOeTK+0vEWwYIqtB00iR0I=
@@ -44,10 +40,6 @@
 		</dict>
 		<key>Headers/PipManager.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			9Y3AKOydIWSAFpKu+3VriazfGp8=
-			</data>
 			<key>hash2</key>
 			<data>
 			x1YYJLA/i6V33kvJw4Y04y/WSoIA+EXp4z/IuBmXT/E=
@@ -55,10 +47,6 @@
 		</dict>
 		<key>Headers/ZegoUikitPlugin.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			kIOyl7YWF1q7PoKm4kdgekZA2yM=
-			</data>
 			<key>hash2</key>
 			<data>
 			6GfO/3W5Md49Zgsw+TWqQOG2iXYdHcjF9jnMgiVlNGc=
@@ -66,10 +54,6 @@
 		</dict>
 		<key>Headers/zego_uikit-umbrella.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			HC3AmGTiI74UIJj9XBG5Lb5cqjA=
-			</data>
 			<key>hash2</key>
 			<data>
 			D5JNCAMS8oi4o3C4HNhRFAEI7yvj0vm49syObv5wBD4=
@@ -77,10 +61,6 @@
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			OX0L2Ah6U3BsiGHrwfJMfrxMjvo=
-			</data>
 			<key>hash2</key>
 			<data>
 			HukwBMVi0RfMosozf0HnfuXkSjCHay+pl8K0FXRZM3A=

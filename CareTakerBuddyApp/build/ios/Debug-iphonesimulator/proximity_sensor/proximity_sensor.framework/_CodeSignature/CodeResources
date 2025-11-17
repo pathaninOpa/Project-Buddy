@@ -10,7 +10,7 @@
 		</data>
 		<key>Headers/proximity_sensor-Swift.h</key>
 		<data>
-		Lz4tIhkjSICJJUVGB3894vw25SY=
+		L+QiQtzWs+HF7CGWM+PKtZTd5tE=
 		</data>
 		<key>Headers/proximity_sensor-umbrella.h</key>
 		<data>
@@ -18,7 +18,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		bHUa070ltEj95ZdOunZKB7AdvHs=
+		6yXEDZjn85oUqfLbdX4/txJ7aiQ=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -26,35 +26,35 @@
 		</data>
 		<key>Modules/proximity_sensor.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		kkiIapY6xayun2gAlTYglpuictQ=
+		qaVS+62RNevuVCihLo8l4iO9yuc=
 		</data>
 		<key>Modules/proximity_sensor.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		o2y6+25goLzxcTO5vy8oUs7gOHM=
+		S1Vyyph260/meMfOttk6v/FxOAg=
 		</data>
 		<key>Modules/proximity_sensor.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		FSPnLbho3G+LL9smI3XgVOqBIQ4=
+		gcwBsH4BgyFY4sVtNt+/xOKS3vY=
 		</data>
 		<key>Modules/proximity_sensor.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		l0DkoP1h9MrKulVa6REna8+U46g=
+		FdqmJKh8r1P9TPgzRIiuOeo8vEU=
 		</data>
 		<key>Modules/proximity_sensor.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		y7TTGd9i1lm6PPIfn+K+piI35aM=
+		9kS5fpMedGX29vV7uMt3zWzZQYA=
 		</data>
 		<key>Modules/proximity_sensor.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		FSPnLbho3G+LL9smI3XgVOqBIQ4=
+		gcwBsH4BgyFY4sVtNt+/xOKS3vY=
 		</data>
 		<key>Modules/proximity_sensor.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		c1YEMVQ2XUrPSag8Doo5LYjY5nw=
+		RhTij+uYCjNpXMwgAVXNOUqWorc=
 		</data>
 		<key>Modules/proximity_sensor.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		DscuTq4u7slSIaEAwnZXJWzqb6M=
+		LDRju4sSuHQsZcnTkjlclhjOS40=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -70,7 +70,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			MUEDA5Qs8nksuU+JE54zK/X45exJ5QS/XHjVmkY3LuI=
+			WZ5q4l45EfCYs59I2DrkRkg3k/5k3munj7/g1iDY6Fg=
 			</data>
 		</dict>
 		<key>Headers/proximity_sensor-umbrella.h</key>
@@ -91,56 +91,56 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			5ZJR0y0T/wb/H2PdvB84nmT8cd/RA8T/iBEis9l9BXw=
+			dLLPhHILW3AhsLQclvifcdCp3Bhy12ZCslW0vbHqMTw=
 			</data>
 		</dict>
 		<key>Modules/proximity_sensor.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			X0havu14B83oE/gUQ0OM/8GfpTJg+/psfXi9rVQPIs8=
+			Cq+G/WBMoLhHeignyB8MUt8505F6jS9JLC3UMCYSdUE=
 			</data>
 		</dict>
 		<key>Modules/proximity_sensor.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KnRdWE4y6t4QM5zi5JDptPdHFgJy1Tku+7GLkZS2aNM=
+			Qnesa0n4URGWAopawg9bGx36dUwkYV00BoCJ8LFzlyg=
 			</data>
 		</dict>
 		<key>Modules/proximity_sensor.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			vEmZZAUOaMYdTquHp1mGQSaHHvfXKEO0YqdgiorfB2A=
+			GziEKqyBR+/R3Sk/AWqBS/E+gUI069mJ4yWP8ZX5iuc=
 			</data>
 		</dict>
 		<key>Modules/proximity_sensor.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			6oSIlCJMdRfy020X8pJHCzr51F8ur9X5x99ohkzDdUU=
+			9XFmA+/e61leuF2kfeuiKvw/up9pBbxWJo17rBnWje8=
 			</data>
 		</dict>
 		<key>Modules/proximity_sensor.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KnRdWE4y6t4QM5zi5JDptPdHFgJy1Tku+7GLkZS2aNM=
+			Qnesa0n4URGWAopawg9bGx36dUwkYV00BoCJ8LFzlyg=
 			</data>
 		</dict>
 		<key>Modules/proximity_sensor.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			rwZD0/yXtBuG6IJxBIFEXnln3LZ3of3N60SRAHKEmCw=
+			G7UEJQa/qXTHHxaP5unbCrNFsGEHFXA4cKYwGlfob+M=
 			</data>
 		</dict>
 		<key>Modules/proximity_sensor.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			pDd+Z4J9uCrlvQRSI1r+uQOZmwA/zvVVKXIr/89mM9I=
+			85ucAK5DaodkPQGHRBFno86g2C+L4+dwF/F6xGM2cuA=
 			</data>
 		</dict>
 	</dict>

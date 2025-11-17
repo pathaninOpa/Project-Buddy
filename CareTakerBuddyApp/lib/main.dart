@@ -9,8 +9,34 @@ import 'call_screen.dart';
 import 'join_screen.dart';
 import 'SplashPage.dart';
 import 'LoginPage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'GoogleSignIn.dart';
 // improvement review: use คำนำหน้า like granny kat
 
+void main() async { // <--- 1. Make main() asynchronous
+  // 2. Ensure Flutter is ready to run bindings
+  WidgetsFlutterBinding.ensureInitialized(); 
+
+  // 3. Initialize Firebase before running the app
+  await Firebase.initializeApp( 
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Keep your system UI settings
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+  );
+
+  // 4. Run your root application widget
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    // Use the widget name you prefer (e.g., BuddyApp or MyApp)
+    home: BuddyApp(), 
+  ));
+}
+
+/*
 void main() {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
@@ -20,7 +46,7 @@ void main() {
     home: BuddyApp(),
   ));
 }
-
+*/
 class BuddyApp extends StatelessWidget {
   const BuddyApp({super.key});
 
