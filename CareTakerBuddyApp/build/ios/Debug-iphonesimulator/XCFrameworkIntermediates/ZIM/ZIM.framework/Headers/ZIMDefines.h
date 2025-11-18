@@ -790,6 +790,16 @@ typedef NS_ENUM(NSUInteger, ZIMUserOnlineStatus) {
 
 @end
 
+@interface ZIMOfflinePushPrivateMessageTemplate : NSObject
+
+@property (nonatomic, strong) NSString *templateID;
+
+@property (nonatomic, strong) NSString *titleParameters;
+
+@property (nonatomic, strong) NSString *contentParameters;
+
+@end
+
 /// Description:Offline push configuration.
 @interface ZIMPushConfig : NSObject
 
@@ -809,6 +819,8 @@ typedef NS_ENUM(NSUInteger, ZIMUserOnlineStatus) {
 @property (nonatomic, assign) int badgeIncrement;
 
 @property (nonatomic, strong) ZIMVoIPConfig *voIPConfig;
+
+@property (nonatomic, strong) ZIMOfflinePushPrivateMessageTemplate *privateMessageTemplate;
 
 @end
 

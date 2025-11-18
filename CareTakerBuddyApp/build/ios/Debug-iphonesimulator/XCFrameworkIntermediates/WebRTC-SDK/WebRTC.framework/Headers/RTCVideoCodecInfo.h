@@ -14,7 +14,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Holds information to identify a codec. Corresponds to webrtc::SdpVideoFormat. */
+/** Holds information to identify a codec. Corresponds to
+ * webrtc::SdpVideoFormat. */
 RTC_OBJC_EXPORT
 @interface RTC_OBJC_TYPE (RTCVideoCodecInfo) : NSObject <NSCoding>
 
@@ -23,8 +24,8 @@ RTC_OBJC_EXPORT
 - (instancetype)initWithName:(NSString *)name;
 
 - (instancetype)initWithName:(NSString *)name
-                  parameters:(nullable NSDictionary<NSString *, NSString *> *)parameters
-    NS_DESIGNATED_INITIALIZER;
+                  parameters:(nullable NSDictionary<NSString *, NSString *> *)
+                                 parameters;
 
 - (instancetype)initWithName:(NSString *)name
                   parameters:(nullable NSDictionary<NSString *, NSString *> *)parameters

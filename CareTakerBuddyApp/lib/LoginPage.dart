@@ -4,6 +4,141 @@ import 'package:flutterapp01/main.dart';
 import 'package:flutterapp01/GoogleSignIn.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'userdata.dart';
+
+Future<Map<String, dynamic>?> showCaregiverOnboarding(
+    BuildContext context, String uid) async {
+    final nameController = TextEditingController();
+    final ageController = TextEditingController();
+    final roleController = TextEditingController();
+
+    String gender = "Female"; // default
+
+    return await showDialog<Map<String, dynamic>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF162D41),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: const Text(
+                "Tell us about you",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // NAME
+                    TextField(
+                      controller: nameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: "Name",
+                        labelStyle: TextStyle(color: Colors.white70),
+                        enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white54)),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFFDCD8B))),
+                      ),
+                    ),
+
+                    // AGE
+                    TextField(
+                      controller: ageController,
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: "Age",
+                        labelStyle: TextStyle(color: Colors.white70),
+                        enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white54)),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFFDCD8B))),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // GENDER DROPDOWN
+                    DropdownButtonFormField<String>(
+                      value: gender,
+                      dropdownColor: const Color(0xFF162D41),
+                      style: const TextStyle(color: Colors.white),
+                      items: ["Female", "Male", "Other"]
+                          .map((g) => DropdownMenuItem(
+                                value: g,
+                                child: Text(g,
+                                    style: const TextStyle(color: Colors.white)),
+                              ))
+                          .toList(),
+                      onChanged: (value) => setState(() => gender = value!),
+                      decoration: const InputDecoration(
+                        labelText: "Gender",
+                        labelStyle: TextStyle(color: Colors.white70),
+                        enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white54)),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFFDCD8B))),
+                      ),
+                    ),
+
+                    // ROLE
+                    TextField(
+                      controller: roleController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: "Role (e.g., Mother, Son…)",
+                        labelStyle: TextStyle(color: Colors.white70),
+                        enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white54)),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFFDCD8B))),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, null),
+                  child:
+                      const Text("Cancel", style: TextStyle(color: Colors.redAccent)),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (nameController.text.isEmpty ||
+                        ageController.text.isEmpty ||
+                        roleController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Please fill all fields")),
+                      );
+                      return;
+                    }
+
+                    Navigator.pop(context, {
+                      "name": nameController.text.trim(),
+                      "age": ageController.text.trim(),
+                      "gender": gender,
+                      "role": roleController.text.trim(),
+                      "uid": uid,
+                    });
+                  },
+                  child: const Text("Confirm",
+                      style: TextStyle(color: Color(0xFFFDCD8B))),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -39,31 +174,51 @@ class LoginPage extends StatelessWidget {
 
               // Google Sign In Button (Material style)
               GestureDetector(
-                onTap: () async { // 1. Make the callback async
+                onTap: () async {
                   try {
-                    // 2. Call your asynchronous sign-in function and await its result
-                    final UserCredential userCredential = await signInWithGoogle(); 
+                    // 1️⃣ Sign in with Google
+                    final UserCredential userCredential = await signInWithGoogle();  
 
-                    // 3. Check if the sign-in was successful (e.g., if a user is returned)
-                    if (userCredential.user != null) {
-                      
-                      // 4. Navigate to the BuddyHomePage on success
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const BuddyHomePage()),
-                      );
-                      
+                    if (userCredential.user == null) return; // safety check
+                    final uid = userCredential.user!.uid;
+
+                    // 2️⃣ Check if user already exists in Firestore
+                    final userDoc = await FirebaseFirestore.instance
+                        .collection('caregivers')
+                        .doc(uid)
+                        .get();
+
+                    final bool isFirstTime = !userDoc.exists;
+
+                    // 3️⃣ If FIRST TIME → show onboarding popup
+                    if (isFirstTime) {
+                      final caregiver = await showCaregiverOnboarding(context, uid);
+
+                      // If user cancelled popup, don't continue
+                      if (caregiver == null) return;
+
+                      // 4️⃣ Save new caregiver into Firestore
+                      await FirebaseFirestore.instance
+                          .collection('caregivers')
+                          .doc(uid)
+                          .set(caregiver);
                     }
+
+                    // 5️⃣ Continue to home page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => BuddyHomePage(uid: uid)),
+                    );
                   } catch (e) {
-                    // 5. Handle errors (e.g., user cancels sign-in, network error, etc.)
+                    // 6️⃣ Error handling
                     print("Google Sign-In Failed: $e");
-                    
-                    // Optionally show a SnackBar or AlertDialog to the user
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Sign-in failed. Please try again.")),
                     );
                   }
                 },
+
                 child: Container(
                   height: 50,
                   decoration: BoxDecoration(

@@ -387,4 +387,6 @@
 + (nullable ZIMSubscribedUserStatusQueryConfig *)oZIMSubscribedUserStatusQueryConfig:
     (nullable NSDictionary *)configMap;
 
++ (nullable ZIMOfflinePushPrivateMessageTemplate *)oZIMOfflinePushPrivateMessageTemplate:(nullable NSDictionary *)configMap;    
+
 @end

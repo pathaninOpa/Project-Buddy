@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterapp01/userdata.dart';// Your CareGiver class
@@ -66,17 +67,68 @@ class BuddyApp extends StatelessWidget {
 
 
 class BuddyHomePage extends StatefulWidget {
-  const BuddyHomePage({super.key});
+  final String uid;
+
+  const BuddyHomePage({super.key, required this.uid});
 
   @override
   State<BuddyHomePage> createState() => _BuddyHomePageState();
 }
 
 class _BuddyHomePageState extends State<BuddyHomePage> {
-  List<Buddy> buddies = [
-    Buddy(name: 'Buddy 1', imagePath: 'assets/Buddy1.jpeg'),
-  ];
+  String caregiverName = "";
+  bool loading = true;
 
+  @override
+  void initState() {
+    super.initState();
+    loadCaregiver();
+    _loadBuddiesFromFirestore();
+  }
+
+  Future<void> _loadBuddiesFromFirestore() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('caregivers')
+          .doc(widget.uid)            // <-- caregiver’s UID
+          .collection('buddies')
+          .get();
+
+      setState(() {
+        buddies = snapshot.docs
+            .map((doc) => Buddy.fromMap(doc.data()))
+            .toList();
+        loadingBuddies = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading buddies: $e');
+      setState(() {
+        loadingBuddies = false;
+      });
+    }
+  }
+
+  Future<void> loadCaregiver() async {
+    final doc = await FirebaseFirestore.instance
+        .collection('caregivers')
+        .doc(widget.uid)
+        .get();
+
+    if (doc.exists) {
+      setState(() {
+        caregiverName = doc['name'];
+        loading = false;
+      });
+    }
+  }
+
+  
+
+
+  List<Buddy> buddies = [];
+  bool loadingBuddies = true; 
+
+  /*
   void _addBuddy() {
     setState(() {
       buddies.add(Buddy(
@@ -84,17 +136,230 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
         imagePath: 'assets/Buddy1.jpeg',
       ));
     });
+  }*/
+
+  void _addBuddy() async {
+  final buddyData = await showAddBuddyPopup(context);
+
+    if (buddyData == null) return; // user cancelled
+
+    // Generate unique ID for this elder
+    final buddyId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Save to Firestore
+    await FirebaseFirestore.instance
+        .collection('caregivers')
+        .doc(widget.uid)
+        .collection('buddies')
+        .doc(buddyId)
+        .set({
+      "buddyName": 'Buddy ${buddies.length + 1}',
+      "name": buddyData['name'],
+      "age": buddyData['age'],
+      "gender": buddyData['gender'],
+      "role": buddyData['role'],
+    });
+
+    await showBuddyIdPopup(context, buddyId);
+
+    setState(() {
+      buddies.add(
+        Buddy(
+          buddyId: buddyId,
+          buddyName: 'Buddy ${buddies.length + 1}',  // card title
+          name: buddyData['name'],                   // elder name
+          age: buddyData['age'],
+          gender: buddyData['gender'],
+          role: buddyData['role'],
+        ),
+      );
+    });
   }
 
+  Future<void> showBuddyIdPopup(BuildContext context, String buddyId) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF162D41),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "Buddy Created!",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Share this ID with your elder so they can connect to this Buddy:",
+                style: TextStyle(color: Colors.white70),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Color(0xFF1F3A52),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: SelectableText(
+                  buddyId,
+                  style: const TextStyle(
+                      color: Color(0xFFFDCD8B), fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextButton.icon(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: buddyId));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Copied to clipboard!")),
+                  );
+                },
+                icon: const Icon(Icons.copy, color: Color(0xFFFDCD8B)),
+                label: const Text(
+                  "Copy Buddy ID",
+                  style: TextStyle(color: Color(0xFFFDCD8B)),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                "Done",
+                style: TextStyle(color: Color(0xFFFDCD8B)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  Future<Map<String, dynamic>?> showAddBuddyPopup(BuildContext context) async {
+  final nameController = TextEditingController();
+  final ageController = TextEditingController();
+  final roleController = TextEditingController();
+  String gender = "Female";
+
+  return await showDialog<Map<String, dynamic>>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return StatefulBuilder(builder: (context, setState) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF162D41),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            "Add Care Receiver",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: nameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: "Name",
+                    labelStyle: TextStyle(color: Colors.white70),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white54)),
+                  ),
+                ),
+                TextField(
+                  controller: ageController,
+                  style: const TextStyle(color: Colors.white),
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: "Age",
+                    labelStyle: TextStyle(color: Colors.white70),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white54)),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                DropdownButtonFormField<String>(
+                  value: gender,
+                  dropdownColor: const Color(0xFF162D41),
+                  style: const TextStyle(color: Colors.white),
+                  items: ["Female", "Male", "Other"]
+                      .map((g) => DropdownMenuItem(
+                            value: g,
+                            child: Text(g, style: const TextStyle(color: Colors.white)),
+                          ))
+                      .toList(),
+                  onChanged: (value) => setState(() => gender = value!),
+                  decoration: const InputDecoration(
+                    labelText: "Gender",
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                ),
+                TextField(
+                  controller: roleController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: "Role (e.g., Grandma, Grandpa)",
+                    labelStyle: TextStyle(color: Colors.white70),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white54)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel", style: TextStyle(color: Colors.redAccent)),
+            ),
+            TextButton(
+              onPressed: () {
+                if (nameController.text.isEmpty ||
+                    ageController.text.isEmpty ||
+                    roleController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Please fill all fields")),
+                  );
+                  return;
+                }
+
+                Navigator.pop(context, {
+                  "name": nameController.text,
+                  "age": ageController.text,
+                  "gender": gender,
+                  "role": roleController.text,
+                });
+              },
+              child: const Text("Confirm", style: TextStyle(color: Color(0xFFFDCD8B))),
+            ),
+          ],
+        );
+      });
+    },
+  );
+}
+
+
+  
   @override
   Widget build(BuildContext context) {
+  /*
     final caregiver = CareGiver(
       cgname: 'Jane Doe',
       cgage: '35',
       cggender: 'Female',
       cgrole: 'Mother',
     );
-  
+  */
+  /*
     final carereceiver = CareReceiver(
       crname: 'Kat',
       crage: '90',
@@ -102,7 +367,7 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
       crrole: 'Grandmother',
       crbirthday: '1933-05-15',
     );
-
+  */
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -130,7 +395,7 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                   ),
                 ),
                 Text(
-                  caregiver.cgname,
+                  caregiverName,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 26,
@@ -140,14 +405,14 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
               ],
             ),
             const Spacer(),
-            const Padding(
+            /*const Padding(
               padding: EdgeInsets.only(right: 16),
               child: CircleAvatar(
                 radius: 30,
                 backgroundImage: AssetImage('assets/profile.jpeg'),
                 backgroundColor: Colors.transparent,
               ),
-            ),
+            ),*/
           ],
         ),
       ),
@@ -164,7 +429,7 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                   final updatedBuddy = await Navigator.push<Buddy>(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BuddyDetailPage(buddy: buddy, carereceiver: carereceiver),
+                      builder: (context) => BuddyDetailPage(buddy: buddy),
                     ),
                   );
                   if (updatedBuddy != null) {
@@ -175,11 +440,8 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                   }
                 },
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
-                      width: 135,
-                      height: 135,
+                    Expanded(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
                         child: Image.asset(
@@ -188,17 +450,21 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     Text(
-                      buddy.name,
+                      '${buddy.role} ${buddy.name}\'s Buddy',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
+                    )
                   ],
                 ),
+
               );
             }).toList(),
             GestureDetector(
@@ -242,9 +508,9 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
 
 class BuddyDetailPage extends StatefulWidget {
   final Buddy buddy;
-  final CareReceiver carereceiver;
+  //final CareReceiver carereceiver;
 
-  const BuddyDetailPage({super.key, required this.buddy, required this.carereceiver});
+  const BuddyDetailPage({super.key, required this.buddy});
 
   @override
   State<BuddyDetailPage> createState() => _BuddyDetailPageState();
@@ -275,7 +541,7 @@ class _BuddyDetailPageState extends State<BuddyDetailPage> {
           icon: const Icon(Icons.navigate_before , color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('${widget.carereceiver.crname}\'s Buddy',
+        title: Text('${widget.buddy.role} ${widget.buddy.name}\'s Buddy',
                       style: TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromARGB(0, 239, 235, 235),
         elevation: 0,
@@ -291,7 +557,7 @@ class _BuddyDetailPageState extends State<BuddyDetailPage> {
             ),
             const SizedBox(height: 15),
             Text(
-              '${widget.carereceiver.crname} is feeling $mood',
+              '${widget.buddy.role} ${widget.buddy.name} is feeling $mood',
               style: const TextStyle(
                     color: Colors.white,
                     fontSize: 17,

@@ -10,20 +10,20 @@
 
 #import <Foundation/Foundation.h>
 
-#import <WebRTC/RTCMacros.h>
 #import <WebRTC/RTCRtcpParameters.h>
 #import <WebRTC/RTCRtpCodecParameters.h>
 #import <WebRTC/RTCRtpEncodingParameters.h>
 #import <WebRTC/RTCRtpHeaderExtension.h>
+#import <WebRTC/RTCMacros.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** Corresponds to webrtc::DegradationPreference. */
-typedef NS_ENUM(NSInteger, RTCDegradationPreference) {
-  RTCDegradationPreferenceDisabled,
-  RTCDegradationPreferenceMaintainFramerate,
-  RTCDegradationPreferenceMaintainResolution,
-  RTCDegradationPreferenceBalanced
+typedef NS_ENUM(NSInteger, RTC_OBJC_TYPE(RTCDegradationPreference)) {
+  RTC_OBJC_TYPE(RTCDegradationPreferenceDisabled),
+  RTC_OBJC_TYPE(RTCDegradationPreferenceMaintainFramerate),
+  RTC_OBJC_TYPE(RTCDegradationPreferenceMaintainResolution),
+  RTC_OBJC_TYPE(RTCDegradationPreferenceBalanced)
 };
 
 RTC_OBJC_EXPORT
@@ -40,10 +40,12 @@ RTC_OBJC_EXPORT
     NSArray<RTC_OBJC_TYPE(RTCRtpHeaderExtension) *> *headerExtensions;
 
 /** The currently active encodings in the order of preference. */
-@property(nonatomic, copy) NSArray<RTC_OBJC_TYPE(RTCRtpEncodingParameters) *> *encodings;
+@property(nonatomic, copy)
+    NSArray<RTC_OBJC_TYPE(RTCRtpEncodingParameters) *> *encodings;
 
 /** The negotiated set of send codecs in order of preference. */
-@property(nonatomic, copy) NSArray<RTC_OBJC_TYPE(RTCRtpCodecParameters) *> *codecs;
+@property(nonatomic, copy)
+    NSArray<RTC_OBJC_TYPE(RTCRtpCodecParameters) *> *codecs;
 
 /**
  * Degradation preference in case of CPU adaptation or constrained bandwidth.

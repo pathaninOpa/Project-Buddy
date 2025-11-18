@@ -17,6 +17,7 @@
 #import "FlutterSocketConnection.h"
 #import "FlutterSocketConnectionFrameReader.h"
 #import "CameraUtils.h"
+#import "FlutterDataPacketCryptor.h"
 #import "FlutterRPScreenRecorder.h"
 #import "FlutterRTCAudioSink-Interface.h"
 #import "FlutterRTCAudioSink.h"
