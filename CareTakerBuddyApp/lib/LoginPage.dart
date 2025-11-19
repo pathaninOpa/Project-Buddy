@@ -22,7 +22,7 @@ Future<Map<String, dynamic>?> showCaregiverOnboarding(
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: const Color(0xFF162D41),
+              backgroundColor: const Color.fromRGBO(22, 45, 65, 1),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -146,114 +146,120 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF131C3A),
+      backgroundColor: const Color(0xFF162D41), // DARK BACKGROUND
 
       body: Center(
-        child: Container(
-          padding: const EdgeInsets.all(25),
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(35),
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
 
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Title
-              Text(
-                "Welcome to Buddy",
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF131C3A),
-                ),
+            // =============================
+            //  BUDDY LOGO BOX (Like your mock)
+            // =============================
+            Container(
+              padding: const EdgeInsets.all(40),
+              decoration: BoxDecoration(
+                color: const Color(0xFF162D41),   // Inner dark box
+                borderRadius: BorderRadius.circular(20),
               ),
+              child: Column(
+                children: const [
+                  Text(
+                    "Buddy",
+                    style: TextStyle(
+                      color: Color(0xFFE7C590),
+                      fontSize: 70,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    "your robot companion",
+                    style: TextStyle(
+                      color: Color(0xFFFFAFA0),
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-              const SizedBox(height: 30),
+            const SizedBox(height: 120),
 
-              // Google Sign In Button (Material style)
-              GestureDetector(
-                onTap: () async {
-                  try {
-                    // 1️⃣ Sign in with Google
-                    final UserCredential userCredential = await signInWithGoogle();  
+            // =============================
+            //  LOGIN BUTTON (WHITE, ROUNDED)
+            // =============================
+            GestureDetector(
+              onTap: () async {
+                try {
+                  final UserCredential userCredential =
+                      await signInWithGoogle();
 
-                    if (userCredential.user == null) return; // safety check
-                    final uid = userCredential.user!.uid;
+                  if (userCredential.user == null) return;
+                  final uid = userCredential.user!.uid;
 
-                    // 2️⃣ Check if user already exists in Firestore
-                    final userDoc = await FirebaseFirestore.instance
+                  // Check Firestore
+                  final userDoc = await FirebaseFirestore.instance
+                      .collection('caregivers')
+                      .doc(uid)
+                      .get();
+
+                  final bool isFirstTime = !userDoc.exists;
+
+                  // First-time popup
+                  if (isFirstTime) {
+                    final caregiver =
+                        await showCaregiverOnboarding(context, uid);
+                    if (caregiver == null) return;
+
+                    await FirebaseFirestore.instance
                         .collection('caregivers')
                         .doc(uid)
-                        .get();
-
-                    final bool isFirstTime = !userDoc.exists;
-
-                    // 3️⃣ If FIRST TIME → show onboarding popup
-                    if (isFirstTime) {
-                      final caregiver = await showCaregiverOnboarding(context, uid);
-
-                      // If user cancelled popup, don't continue
-                      if (caregiver == null) return;
-
-                      // 4️⃣ Save new caregiver into Firestore
-                      await FirebaseFirestore.instance
-                          .collection('caregivers')
-                          .doc(uid)
-                          .set(caregiver);
-                    }
-
-                    // 5️⃣ Continue to home page
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => BuddyHomePage(uid: uid)),
-                    );
-                  } catch (e) {
-                    // 6️⃣ Error handling
-                    print("Google Sign-In Failed: $e");
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Sign-in failed. Please try again.")),
-                    );
+                        .set(caregiver);
                   }
-                },
 
-                child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.grey.shade300),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      )
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BuddyHomePage(uid: uid),
+                    ),
+                  );
+                } catch (e) {
+                  print("Google Sign-In Failed: $e");
 
-                      const SizedBox(width: 16),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Sign-in failed. Please try again."),
+                    ),
+                  );
+                }
+              },
 
-                      // Button text
-                      const Text(
-                        "Sign in with Google",
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    )
+                  ],
+                ),
+                child: const Text(
+                  "Continue with google",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Color(0xFF162D41),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

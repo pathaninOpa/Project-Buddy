@@ -75,16 +75,16 @@ class Buddy {
 
   // Firestore → Model
   factory Buddy.fromMap(Map<String, dynamic> map) {
-    return Buddy(
-      buddyId: map['buddyId'] ?? '',
-      buddyName: map['buddyName'] ?? '',
-      name: map['name'] ?? '',
-      age: map['age'] ?? '',
-      gender: map['gender'] ?? '',
-      role: map['role'] ?? '',
-      imagePath: map['imagePath'] ?? 'assets/Buddy1.jpeg',
-    );
-  }
+  return Buddy(
+    buddyId: map['buddyId'] ?? map['buddyID'] ?? '',
+    buddyName: map['buddyName'] ?? '',
+    name: map['name'] ?? '',
+    age: map['age'] ?? '',
+    gender: map['gender'] ?? '',
+    role: map['role'] ?? '',
+    imagePath: map['imagePath'] ?? 'assets/Buddy1.jpeg',
+  );
+}
 
   // Model → Firestore
   Map<String, dynamic> toMap() {
@@ -99,8 +99,6 @@ class Buddy {
     };
   }
 }
-
-
 
 // =============================
 //  EVENT MODEL
