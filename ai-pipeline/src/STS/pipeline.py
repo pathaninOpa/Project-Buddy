@@ -28,11 +28,11 @@ class STT:
             self.compute_type = "int8_float16"
         elif torch.backends.mps.is_available():
             self.device = "cpu"
-            compute_type = "int8"
+            self.compute_type = "int8"
         else:
             self.device = "cpu"
-            compute_type = "int8"
-        self.model = WhisperModel("large-v3", self.device, compute_type=compute_type)
+            self.compute_type = "int8"
+        self.model = WhisperModel("large-v3", self.device, self.compute_type)
         self.vad = webrtcvad.Vad(1)
 
     def highpass_filter(self, audio_np, sr=16000, cutoff=100):
@@ -61,25 +61,15 @@ class STT:
         segments, _ = self.model.transcribe(buffer_io, beam_size=2)
         full_text = ' '.join(segment.text for segment in segments).strip()
 
-        filtered_lines = []
-        for sentence in re.split(r'[.!?]', full_text):
-            sentence = sentence.strip()
-            trigger_words = ["บัดดี้", "buddy", "บอดดี้", "บอดี้", "บัดดี", "บัดดี้้"]
-
-            if any(word in full_text.lower() for word in trigger_words):
-                print(f"[STT TRIGGERED TEXT] {full_text}")
-                return full_text
-            else:
-                print(f"[STT SKIPPED TEXT] {full_text}")
-                return ""
-        return ' '.join(filtered_lines) if filtered_lines else ""
+        print(f"[STT PROCESSED TEXT] {full_text}")
+        return full_text
 
 class LLM:
     def __init__(self):
         self.OLLAMA_API_URL = "http://localhost:11434/api/chat"
         self.MODEL_NAME = "gemma3:4b"
         self.SYSTEM_PROMPT = (
-            "คุณชื่อบัดดี้ เป็นผู้ช่วย AI สำหรับผู้สูงอายุ พูดภาษาไทยเป็นหลัก ถ้าจำเป็นสามารถใช้คำทับศัพท์ภาษาอังกฤษได้ "
+            "คุณชื่อBuddy เป็นผู้ช่วย AI สำหรับผู้สูงอายุ พูดภาษาไทยเป็นหลัก ถ้าจำเป็นสามารถใช้คำทับศัพท์ภาษาอังกฤษได้ "
             "ห้ามลงท้ายประโยคด้วยคำว่า 'ค่ะ' หรือ 'คะ' โดยเด็ดขาด "
             "ให้ตอบแบบสบายๆ เป็นธรรมชาติ เหมือนคุยกับคนในครอบครัว "
             "หลีกเลี่ยงการใช้รูปแบบรายการหรือหัวข้อ ให้พูดต่อเนื่องเหมือนบทสนทนาปกติ "
@@ -100,7 +90,7 @@ class LLM:
                 "messages": self.conversation_history,
                 "stream": True,
                 "options": {
-                    "num_predict": 100  
+                    "num_predict": 512 
                 }
             }
             
@@ -145,26 +135,27 @@ class RUN:
         self.llm = LLM()
         self.tts = TTS()
     
-    def pipeline(self, audio: bytes) -> bytearray:
+    def pipeline(self, audio: bytes) -> tuple[str, str, bytearray]:
         try:
             try:
                 transcribed = self.stt.transcribe_audio(audio)
                 if not transcribed:
                     print("[STT INFO] No trigger word found — skipping response.")
-                    return b""
+                    return "", "", b""
             except Exception as e:
                 print(f"[STT ERROR] {e}")
                 return self._fallback_response("ขออภัย ระบบฟังเสียงไม่พร้อมใช้งาน")
 
             try:
                 lmResponse = self.llm.inference(transcribed)
+
             except Exception as e:
                 print(f"[LLM ERROR] {e}")
                 return self._fallback_response("ขออภัย ฉันไม่สามารถตอบกลับได้ในขณะนี้")
 
             try:
                 voiceResponse = self.tts.genVoice(lmResponse)
-                return voiceResponse
+                return transcribed, lmResponse, voiceResponse
             except Exception as e:
                 print(f"[TTS ERROR] {e}")
                 return self._fallback_response("ขออภัย ระบบตอบกลับด้วยเสียงไม่พร้อมใช้งาน")
@@ -174,9 +165,10 @@ class RUN:
             traceback.print_exc()
             return self._fallback_response("ขออภัย ระบบเกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง")
 
-    def _fallback_response(self, message: str) -> bytearray:
+    def _fallback_response(self, message: str) -> tuple[str, str, bytearray]:
         try:
-            return self.tts.genVoice(message)
+            audio = self.tts.genVoice(message)
+            return "", message, audio
         except Exception as e:
             print(f"[FALLBACK TTS ERROR] {e}")
-            return bytearray()
+            return "", message, bytearray()
