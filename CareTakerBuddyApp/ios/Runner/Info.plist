@@ -2,10 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.877436752472-f58kghi1c9eubshsqfi53vobjft63jni</string>
+			</array>
+		</dict>
+	</array>
+	<key>GIDClientID</key>
+	<string>877436752472-f58kghi1c9eubshsqfi53vobjft63jni.apps.googleusercontent.com</string>
 	<key>NSCameraUsageDescription</key>
-	<string>We require camera access to connect</string>
+	<string>This app needs access to camera for video calls</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>We require microphone access to connect</string>
+	<string>This app needs access to microphone for voice calls</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -49,9 +60,5 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>This app needs access to camera for video calls</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs access to microphone for voice calls</string>
 </dict>
 </plist>
