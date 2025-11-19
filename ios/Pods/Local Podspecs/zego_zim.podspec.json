@@ -1,0 +1,32 @@
+{
+  "name": "zego_zim",
+  "version": "2.23.0",
+  "summary": "ZIM SDK for Flutter.",
+  "description": "ZIM Flutter SDK is a flutter plugin wrapper based on ZIM native Android / iOS SDK",
+  "homepage": "https://zego.im",
+  "license": {
+    "file": "../LICENSE"
+  },
+  "authors": {
+    "ZEGO": "developer@zego.im"
+  },
+  "source": {
+    "path": "."
+  },
+  "source_files": "Classes/**/*",
+  "public_header_files": "Classes/**/*.h",
+  "dependencies": {
+    "Flutter": [],
+    "ZIM": [
+      "2.23.0"
+    ]
+  },
+  "platforms": {
+    "ios": "12.0"
+  },
+  "pod_target_xcconfig": {
+    "DEFINES_MODULE": "YES",
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]": "i386",
+    "ENABLE_BITCODE": "NO"
+  }
+}

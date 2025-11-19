@@ -1,0 +1,24 @@
+{
+  "name": "flutter_ringtone_player",
+  "version": "0.0.1",
+  "summary": "Simple ringtone player plugin.",
+  "description": "A simple ringtone player plugin.",
+  "homepage": "http://github.com/inway/flutter_ringtone_player",
+  "license": {
+    "file": "../LICENSE"
+  },
+  "authors": {
+    "InWay.pro": "info@inway.pro"
+  },
+  "source": {
+    "path": "."
+  },
+  "source_files": "Classes/**/*",
+  "public_header_files": "Classes/**/*.h",
+  "dependencies": {
+    "Flutter": []
+  },
+  "platforms": {
+    "ios": "8.0"
+  }
+}

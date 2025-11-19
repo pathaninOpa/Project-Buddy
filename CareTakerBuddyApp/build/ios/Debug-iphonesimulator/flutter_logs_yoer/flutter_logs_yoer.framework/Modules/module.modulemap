@@ -1,0 +1,11 @@
+framework module flutter_logs_yoer {
+  umbrella header "flutter_logs_yoer-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module flutter_logs_yoer.Swift {
+  header "flutter_logs_yoer-Swift.h"
+  requires objc
+}
