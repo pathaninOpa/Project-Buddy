@@ -1,0 +1,11 @@
+framework module proximity_sensor {
+  umbrella header "proximity_sensor-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module proximity_sensor.Swift {
+  header "proximity_sensor-Swift.h"
+  requires objc
+}

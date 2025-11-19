@@ -1,0 +1,6 @@
+framework module ZegoConnection {
+  umbrella header "ZegoConnection.h"
+
+  export *
+  module * { export * }
+}

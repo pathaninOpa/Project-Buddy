@@ -1,0 +1,6 @@
+framework module zego_zpns {
+  umbrella header "zego_zpns-umbrella.h"
+
+  export *
+  module * { export * }
+}

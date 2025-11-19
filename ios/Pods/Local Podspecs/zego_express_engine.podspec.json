@@ -1,0 +1,46 @@
+{
+  "name": "zego_express_engine",
+  "version": "3.22.1",
+  "summary": "Zego RTC SDK for Flutter",
+  "description": "ZegoExpressEngine Flutter SDK is a flutter plugin wrapper based on ZEGO Express RTC SDK (Native & Web), providing live video and real-time audio/video services.",
+  "homepage": "https://zego.im",
+  "license": {
+    "file": "../LICENSE"
+  },
+  "authors": {
+    "ZEGO": "developer@zego.im"
+  },
+  "source": {
+    "path": "."
+  },
+  "source_files": "Classes/**/*",
+  "public_header_files": "Classes/**/*.h",
+  "static_framework": true,
+  "dependencies": {
+    "Flutter": []
+  },
+  "vendored_frameworks": [
+    "libs/*.xcframework"
+  ],
+  "platforms": {
+    "ios": "9.0"
+  },
+  "pod_target_xcconfig": {
+    "DEFINES_MODULE": "YES",
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]": "i386"
+  },
+  "prepare_command": "sh download.sh",
+  "script_phases": [
+    {
+      "name": "Download native dependency",
+      "script": "sh ${PODS_TARGET_SRCROOT}/download.sh",
+      "execution_position": "before_compile",
+      "input_files": [
+        "${PODS_TARGET_SRCROOT}/DEPS"
+      ],
+      "output_files": [
+        "${PODS_TARGET_SRCROOT}/libs/*"
+      ]
+    }
+  ]
+}

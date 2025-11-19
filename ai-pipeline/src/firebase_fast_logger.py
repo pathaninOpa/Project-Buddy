@@ -30,20 +30,20 @@ class ChatLogger:
                 "role": "user",
                 "content": user_text,
                 "timestamp": firestore.SERVER_TIMESTAMP,
-                "is_analyzed": False, # Flag for the Analyst
+                "is_analyzed": False,
                 "emotion": None
             })
 
-            # 2. Log AI Response
+            # Log AI Response
             messages_ref.add({
                 "role": "assistant",
                 "content": ai_text,
                 "timestamp": firestore.SERVER_TIMESTAMP,
-                "is_analyzed": True, # AI doesn't need emotion analysis (optional)
+                "is_analyzed": True,
                 "emotion": "neutral"
             })
             
-            logging.info(f"✅ Logged chat for user {user_id}")
+            logging.info(f"Logged chat for user {user_id}")
             
         except Exception as e:
-            logging.error(f"🔥 Firebase Error: {e}")
+            logging.error(f"Firebase Error: {e}")
