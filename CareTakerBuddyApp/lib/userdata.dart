@@ -183,10 +183,10 @@ class CareGiver{
   String cgrole;
 
   void caregiverInfo(){
-      cgname = this.cgname; 
-      cgage = this.cgage; 
-      cggender = this.cggender;
-      cgrole = this.cgrole;
+      cgname = cgname; 
+      cgage = cgage; 
+      cggender = cggender;
+      cgrole = cgrole;
   }
 }
 

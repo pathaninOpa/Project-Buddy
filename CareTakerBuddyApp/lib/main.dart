@@ -505,7 +505,7 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                 ),
 
               );
-            }).toList(),
+            }),
             GestureDetector(
               onTap: _addBuddy,
               child: Column(
