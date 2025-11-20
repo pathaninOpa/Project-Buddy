@@ -34,7 +34,7 @@ class SpeechServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.ProcessSpeech = channel.unary_unary(
+        self.ProcessSpeech = channel.stream_stream(
                 '/speech.SpeechService/ProcessSpeech',
                 request_serializer=speech__service__pb2.AudioRequest.SerializeToString,
                 response_deserializer=speech__service__pb2.AudioResponse.FromString,
@@ -44,7 +44,7 @@ class SpeechServiceStub(object):
 class SpeechServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def ProcessSpeech(self, request, context):
+    def ProcessSpeech(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -53,7 +53,7 @@ class SpeechServiceServicer(object):
 
 def add_SpeechServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ProcessSpeech': grpc.unary_unary_rpc_method_handler(
+            'ProcessSpeech': grpc.stream_stream_rpc_method_handler(
                     servicer.ProcessSpeech,
                     request_deserializer=speech__service__pb2.AudioRequest.FromString,
                     response_serializer=speech__service__pb2.AudioResponse.SerializeToString,
@@ -70,7 +70,7 @@ class SpeechService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def ProcessSpeech(request,
+    def ProcessSpeech(request_iterator,
             target,
             options=(),
             channel_credentials=None,
@@ -80,8 +80,8 @@ class SpeechService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
+        return grpc.experimental.stream_stream(
+            request_iterator,
             target,
             '/speech.SpeechService/ProcessSpeech',
             speech__service__pb2.AudioRequest.SerializeToString,

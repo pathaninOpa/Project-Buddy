@@ -32,7 +32,7 @@ class STT:
         else:
             self.device = "cpu"
             self.compute_type = "int8"
-        self.model = WhisperModel("large-v3", self.device, self.compute_type)
+        self.model = WhisperModel("large-v3", device=self.device, compute_type=self.compute_type)
         self.vad = webrtcvad.Vad(1)
 
     def highpass_filter(self, audio_np, sr=16000, cutoff=100):
@@ -68,21 +68,80 @@ class LLM:
     def __init__(self):
         self.OLLAMA_API_URL = "http://localhost:11434/api/chat"
         self.MODEL_NAME = "gemma3:4b"
-        self.SYSTEM_PROMPT = (
-            "คุณชื่อBuddy เป็นผู้ช่วย AI สำหรับผู้สูงอายุ พูดภาษาไทยเป็นหลัก ถ้าจำเป็นสามารถใช้คำทับศัพท์ภาษาอังกฤษได้ "
-            "ห้ามลงท้ายประโยคด้วยคำว่า 'ค่ะ' หรือ 'คะ' โดยเด็ดขาด "
-            "ให้ตอบแบบสบายๆ เป็นธรรมชาติ เหมือนคุยกับคนในครอบครัว "
-            "หลีกเลี่ยงการใช้รูปแบบรายการหรือหัวข้อ ให้พูดต่อเนื่องเหมือนบทสนทนาปกติ "
-            "เน้นให้คำแนะนำที่ชัดเจน กระชับ และเข้าใจง่าย"
-            "พูดให้จบใน 4 ประโยค"
-        )
+        self.SYSTEM_PROMPT = """
+### ROLE AND PERSONA
+You are "Buddy" (บั๊ดดี้), a devoted and affectionate AI grandchild companion for Thai elders.
+Treat the user with the utmost respect, as if they are your own grandparent ("Khun Ta", "Khun Yai").
+Your goal is to make them feel loved, heard, and capable.
+
+### INTENT DETECTION (CRITICAL AND MANDATORY)
+If the user explicitly indicates a desire to **make a phone call**, **video call**, or **contact someone** (e.g., "Call them", "I want to talk to my grandson", "โทรหาหลานหน่อย", "ติดต่อลูกให้ที", "อยากคุยกับหลาน"), you **MUST, WITHOUT FAIL**, include the token `<<CALL>>` at the **VERY BEGINNING** of your response. This token is a command for the system.
+*   **Example User Input:** "โทรหาหลานให้หน่อย"
+*   **Expected Buddy Response:** "<<CALL>> ได้เลยครับคุณยาย เดี๋ยวหนูจัดการโทรหาหลานให้เดี๋ยวนี้เลยครับ"
+*   **Example User Input:** "เหงาจัง อยากคุยกับลูก"
+*   **Expected Buddy Response:** "<<CALL>> ไม่ต้องเหงานะครับคุณตา เดี๋ยวผมต่อสายหาลูกให้คุยแก้เหงาเลยครับ"
+*   **Example User Input:** "อากาศวันนี้เป็นไง"
+*   **Expected Buddy Response:** "วันนี้อากาศดีมากเลยครับ..." (No token, as no call intent)
+
+### LANGUAGE PROTOCOLS (STRICTLY THAI)
+1.  **ALPHABET RESTRICTION:** Your output must consist of **THAI CHARACTERS ONLY**, except for the special `<<CALL>>` token which is a technical command.
+    * **ABSOLUTELY NO English/Latin characters** (A-Z, a-z) allowed in the final output (other than `<<CALL>>`).
+    * **Transliteration:** You must transliterate all English technical terms into Thai phonetics.
+        * *Example:* "WiFi" -> "ไวไฟ"
+        * *Example:* "Application" -> "แอปพลิเคชัน" หรือ "แอป"
+        * *Example:* "YouTube" -> "ยูทูป"
+        * *Example:* "Smartphone" -> "มือถือ"
+2.  **Numerals:** Use Arabic numerals (1, 2, 3) as they are standard in Thai daily life, or Thai numerals if fitting for a very traditional context (but Arabic is preferred for readability).
+
+### TONE AND POLITENESS
+1.  **Ending Particles:**
+    * **FORBIDDEN:** Do not use "ค่ะ" or "คะ".
+    * **REQUIRED:** Use "ครับ" to end sentences politely.
+    * **SOFTENERS:** Use "นะครับ", "เนอะ", "เนาะ", "จ้ะ" to sound natural and warm.
+2.  **Voice:** Gentle, slow-paced, and encouraging. Never sound robotic or like a textbook.
+
+### OPERATIONAL CONSTRAINTS
+1.  **Length:** STRICTLY maximum 4 sentences per response.
+2.  **Structure:** NO bullet points (no lists). Speak in a continuous, warm paragraph.
+3.  **Safety:** If the user mentions health issues, validate their pain first, then gently suggest consulting a doctor (using Thai terms like "ไปหาหมอ").
+
+### FEW-SHOT EXAMPLES (STRICT THAI)
+
+User: "ช่วยสอนยายเล่นไลน์หน่อยสิลูก" (Teach me to use Line.)
+Buddy: "ได้เลยครับคุณยาย การเล่นไลน์ไม่ยากเลยครับ ขั้นแรกคุณยายมองหาปุ่มสีเขียวๆ ที่เขียนว่าไลน์บนหน้าจอนะครับ แล้วลองเอานิ้วจิ้มเบาๆ หนึ่งทีครับ ถ้าหาไม่เจอเรียกบั๊ดดี้ได้ตลอดเลยนะครับ"
+(Observed: "Line" -> "ไลน์", No English chars)
+
+User: "เน็ตมันช้าจังเลย ทำยังไงดี" (Net is slow, what to do?)
+Buddy: "ผมเข้าใจเลยครับคุณตา บางทีสัญญาณไวไฟอาจจะไม่ค่อยดีครับ ลองปิดแล้วเปิดตัวรับสัญญาณใหม่ดูไหมครับ หรือถ้าไม่หาย เดี๋ยวลองให้ลูกหลานช่วยดูให้อีกแรงนะครับ"
+(Observed: "Net" -> "เน็ต", "WiFi" -> "ไวไฟ")
+
+User: "วันนี้ปวดหัวตุ๊บๆ เลย" (Headache today.)
+Buddy: "โธ่ เป็นห่วงจังเลยครับคุณยาย ช่วงนี้อากาศเปลี่ยนแปลงบ่อยด้วยสิครับ ลองนอนพักผ่อนสักงีบดีไหมครับเผื่อจะดีขึ้น ถ้ายังปวดมากต้องรีบบอกลูกหลานให้พาไปหาหมอนะครับ"
+(Observed: Empathetic start + Thai health advice)
+
+### CURRENT INSTRUCTION
+Respond to the user using ONLY THAI CHARACTERS based on the guidelines above.
+"""
 
         self.conversation_history = [{"role": "system", "content": self.SYSTEM_PROMPT}]
+        self.max_history = 20 # Keep short to prevent hallucinations/loops
     
-    def inference(self, transcribedText: str) -> str:
+    def _manage_history(self):
+        # this is for: If history is too long, cut the oldest messages but KEEP the system prompt at [0]
+        if len(self.conversation_history) > self.max_history:
+            # Keep system prompt [0], remove older turns from the middle
+            # e.g., [System, U1, A1, U2, A2, U3, A3] -> [System, U2, A2, U3, A3]
+            excess = len(self.conversation_history) - self.max_history
+            # Slice from 1 (after system) + excess
+            self.conversation_history = [self.conversation_history[0]] + self.conversation_history[1+excess:]
+
+    def inference(self, transcribedText: str) -> tuple[str, bool]:
         while True:
             text = transcribedText
-
+            
+            # Manage history size before adding new turn
+            self._manage_history()
+            
             self.conversation_history.append({"role": "user", "content": text})
             
             payload = {
@@ -108,10 +167,24 @@ class LLM:
                                 assistant_response += fragment
                             except Exception:
                                 continue
-                    self.conversation_history.append({"role": "assistant", "content": assistant_response})
-                    return assistant_response
+                    
+                    # Intent Detection Parsing
+                    trigger_call = False
+                    if "<<CALL>>" in assistant_response:
+                        trigger_call = True
+                        assistant_response = assistant_response.replace("<<CALL>>", "").strip()
+                        print(f"[LLM INTENT] Call trigger detected via token. Clearing history to prevent loops.")
+                        
+                        # CRITICAL FIX: Clear history after a call trigger to reset context
+                        self.conversation_history = [{"role": "system", "content": self.SYSTEM_PROMPT}]
+                    else:
+                         # Only append if NO call trigger (normal conversation)
+                         self.conversation_history.append({"role": "assistant", "content": assistant_response})
+
+                    return assistant_response, trigger_call
             except Exception as e:
                 print(f"\n[Error contacting Ollama API]: {e}")
+                return "ขออภัย ระบบขัดข้องชั่วคราวครับ", False
 
 class TTS:
     def __init__(self):
@@ -123,6 +196,8 @@ class TTS:
         )
     
     def genVoice(self, lmResponse: str) -> bytearray:
+        if not lmResponse:
+             return bytearray()
         inputText = texttospeech.SynthesisInput(text=lmResponse)
         audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.LINEAR16)
         response = self.client.synthesize_speech(input=inputText,voice=self.voice, audio_config= audio_config)
@@ -135,19 +210,22 @@ class RUN:
         self.llm = LLM()
         self.tts = TTS()
     
-    def pipeline(self, audio: bytes) -> tuple[str, str, bytearray]:
+    def pipeline(self, audio: bytes) -> tuple[str, str, bytearray, bool]:
         try:
             try:
                 transcribed = self.stt.transcribe_audio(audio)
                 if not transcribed:
                     print("[STT INFO] No trigger word found — skipping response.")
-                    return "", "", b""
+                    return "", "", b"", False
             except Exception as e:
                 print(f"[STT ERROR] {e}")
                 return self._fallback_response("ขออภัย ระบบฟังเสียงไม่พร้อมใช้งาน")
 
+            # trigger_call is now determined by LLM
+            trigger_call = False 
+
             try:
-                lmResponse = self.llm.inference(transcribed)
+                lmResponse, trigger_call = self.llm.inference(transcribed)
 
             except Exception as e:
                 print(f"[LLM ERROR] {e}")
@@ -155,7 +233,7 @@ class RUN:
 
             try:
                 voiceResponse = self.tts.genVoice(lmResponse)
-                return transcribed, lmResponse, voiceResponse
+                return transcribed, lmResponse, voiceResponse, trigger_call
             except Exception as e:
                 print(f"[TTS ERROR] {e}")
                 return self._fallback_response("ขออภัย ระบบตอบกลับด้วยเสียงไม่พร้อมใช้งาน")
@@ -165,10 +243,10 @@ class RUN:
             traceback.print_exc()
             return self._fallback_response("ขออภัย ระบบเกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง")
 
-    def _fallback_response(self, message: str) -> tuple[str, str, bytearray]:
+    def _fallback_response(self, message: str) -> tuple[str, str, bytearray, bool]:
         try:
             audio = self.tts.genVoice(message)
-            return "", message, audio
+            return "", message, audio, False
         except Exception as e:
             print(f"[FALLBACK TTS ERROR] {e}")
-            return "", message, bytearray()
+            return "", message, bytearray(), False

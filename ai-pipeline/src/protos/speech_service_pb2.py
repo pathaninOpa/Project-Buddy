@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14speech_service.proto\x12\x06speech\"7\n\x0c\x41udioRequest\x12\x12\n\naudio_data\x18\x01 \x01(\x0c\x12\x13\n\x0bsample_rate\x18\x02 \x01(\x05\"S\n\rAudioResponse\x12\x12\n\naudio_data\x18\x01 \x01(\x0c\x12\x18\n\x10transcribed_text\x18\x02 \x01(\t\x12\x14\n\x0cllm_response\x18\x03 \x01(\t2O\n\rSpeechService\x12>\n\rProcessSpeech\x12\x14.speech.AudioRequest\x1a\x15.speech.AudioResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14speech_service.proto\x12\x06speech\"V\n\x0c\x41udioRequest\x12\x12\n\naudio_data\x18\x01 \x01(\x0c\x12\x13\n\x0bsample_rate\x18\x02 \x01(\x05\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x10\n\x08\x62uddy_id\x18\x04 \x01(\t\"i\n\rAudioResponse\x12\x12\n\naudio_data\x18\x01 \x01(\x0c\x12\x18\n\x10transcribed_text\x18\x02 \x01(\t\x12\x14\n\x0cllm_response\x18\x03 \x01(\t\x12\x14\n\x0ctrigger_call\x18\x04 \x01(\x08\x32S\n\rSpeechService\x12\x42\n\rProcessSpeech\x12\x14.speech.AudioRequest\x1a\x15.speech.AudioResponse\"\x00(\x01\x30\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,9 +32,9 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'speech_service_pb2', _globa
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_AUDIOREQUEST']._serialized_start=32
-  _globals['_AUDIOREQUEST']._serialized_end=87
-  _globals['_AUDIORESPONSE']._serialized_start=89
-  _globals['_AUDIORESPONSE']._serialized_end=172
-  _globals['_SPEECHSERVICE']._serialized_start=174
-  _globals['_SPEECHSERVICE']._serialized_end=253
+  _globals['_AUDIOREQUEST']._serialized_end=118
+  _globals['_AUDIORESPONSE']._serialized_start=120
+  _globals['_AUDIORESPONSE']._serialized_end=225
+  _globals['_SPEECHSERVICE']._serialized_start=227
+  _globals['_SPEECHSERVICE']._serialized_end=310
 # @@protoc_insertion_point(module_scope)
