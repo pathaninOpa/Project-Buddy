@@ -13,6 +13,7 @@ from pathlib import Path
 import time
 import traceback
 import torch
+from firebase_fast_logger import db
 
 load_dotenv()
 ttsKey = os.getenv("TTSKEY")
@@ -135,10 +136,45 @@ Respond to the user using ONLY THAI CHARACTERS based on the guidelines above.
             # Slice from 1 (after system) + excess
             self.conversation_history = [self.conversation_history[0]] + self.conversation_history[1+excess:]
 
-    def inference(self, transcribedText: str) -> tuple[str, bool]:
+    def _fetch_reminders_context(self, uid, buddy_id):
+        if not uid or not buddy_id or uid == "unknown_caregiver":
+            return ""
+        try:
+            events_ref = db.collection("caregivers").document(uid)\
+                .collection("buddies").document(buddy_id)\
+                .collection("events")
+            
+            # Filter for active reminders
+            query = events_ref.where("finishAnnounce", "==", False).stream()
+            
+            reminders = []
+            for doc in query:
+                data = doc.to_dict()
+                title = data.get("title", "Untitled")
+                time = data.get("time", "??:??")
+                desc = data.get("description", "")
+                reminders.append(f"- {title} เวลา {time} ({desc})")
+            
+            if not reminders:
+                return "ไม่มีการแจ้งเตือนใดๆ ในขณะนี้ครับ"
+            
+            return "บั๊ดดี้ทราบข้อมูลการแจ้งเตือนปัจจุบันดังนี้: " + "; ".join(reminders) + "ครับ"
+        except Exception as e:
+            print(f"[Firestore Error] {e}")
+            return ""
+
+    def inference(self, transcribedText: str, uid: str = None, buddy_id: str = None, active_reminders_text: str = "") -> tuple[str, bool]:
         while True:
             text = transcribedText
             
+            # Use passed context if available, otherwise fetch from DB (fallback)
+            reminder_context = active_reminders_text
+            if not reminder_context and uid and buddy_id:
+                 reminder_context = self._fetch_reminders_context(uid, buddy_id)
+            
+            if reminder_context:
+                 text = f"{reminder_context}\n\nคำพูดของคุณตา/คุณยาย: {transcribedText}"
+
             # Manage history size before adding new turn
             self._manage_history()
             
@@ -210,7 +246,7 @@ class RUN:
         self.llm = LLM()
         self.tts = TTS()
     
-    def pipeline(self, audio: bytes) -> tuple[str, str, bytearray, bool]:
+    def pipeline(self, audio: bytes, uid: str = None, buddy_id: str = None, active_reminders_text: str = "") -> tuple[str, str, bytearray, bool]:
         try:
             try:
                 transcribed = self.stt.transcribe_audio(audio)
@@ -225,7 +261,7 @@ class RUN:
             trigger_call = False 
 
             try:
-                lmResponse, trigger_call = self.llm.inference(transcribed)
+                lmResponse, trigger_call = self.llm.inference(transcribed, uid, buddy_id, active_reminders_text)
 
             except Exception as e:
                 print(f"[LLM ERROR] {e}")

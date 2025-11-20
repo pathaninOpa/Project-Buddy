@@ -14,6 +14,8 @@ class SpeechServiceServicer(speech_service_pb2_grpc.SpeechServiceServicer):
         audio_buffer = bytearray()
         current_uid = "unknown_caregiver"
         current_buddy_id = "unknown_buddy"
+        current_reminders_text = ""
+
         try:
             for request in request_iterator:
                 audio_buffer.extend(request.audio_data)
@@ -21,8 +23,17 @@ class SpeechServiceServicer(speech_service_pb2_grpc.SpeechServiceServicer):
                     current_uid = request.uid
                 if hasattr(request, 'buddy_id') and request.buddy_id:
                     current_buddy_id = request.buddy_id
+                if hasattr(request, 'active_reminders_text') and request.active_reminders_text:
+                    current_reminders_text = request.active_reminders_text
+
             logging.info(f"Received {len(audio_buffer)} bytes of audio data. UID: {current_uid}, Buddy: {current_buddy_id}")
-            transcribed_text, response_from_llm, response_audio, trigger_call = self.pipeline.pipeline(bytes(audio_buffer))
+            # Pass reminders text to pipeline
+            transcribed_text, response_from_llm, response_audio, trigger_call = self.pipeline.pipeline(
+                bytes(audio_buffer), 
+                current_uid, 
+                current_buddy_id, 
+                current_reminders_text
+            )
 
             if transcribed_text and response_from_llm:
                 self.logger.log_chat(current_uid, current_buddy_id, str(transcribed_text), str(response_from_llm))

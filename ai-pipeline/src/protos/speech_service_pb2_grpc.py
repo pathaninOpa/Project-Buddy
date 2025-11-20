@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from . import speech_service_pb2 as speech__service__pb2
+import speech_service_pb2 as speech__service__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
 GRPC_VERSION = grpc.__version__
@@ -34,7 +34,7 @@ class SpeechServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.ProcessSpeech = channel.stream_stream(
+        self.ProcessSpeech = channel.unary_unary(
                 '/speech.SpeechService/ProcessSpeech',
                 request_serializer=speech__service__pb2.AudioRequest.SerializeToString,
                 response_deserializer=speech__service__pb2.AudioResponse.FromString,
@@ -44,7 +44,7 @@ class SpeechServiceStub(object):
 class SpeechServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def ProcessSpeech(self, request_iterator, context):
+    def ProcessSpeech(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -53,7 +53,7 @@ class SpeechServiceServicer(object):
 
 def add_SpeechServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ProcessSpeech': grpc.stream_stream_rpc_method_handler(
+            'ProcessSpeech': grpc.unary_unary_rpc_method_handler(
                     servicer.ProcessSpeech,
                     request_deserializer=speech__service__pb2.AudioRequest.FromString,
                     response_serializer=speech__service__pb2.AudioResponse.SerializeToString,
@@ -70,7 +70,7 @@ class SpeechService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def ProcessSpeech(request_iterator,
+    def ProcessSpeech(request,
             target,
             options=(),
             channel_credentials=None,
@@ -80,8 +80,8 @@ class SpeechService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_stream(
-            request_iterator,
+        return grpc.experimental.unary_unary(
+            request,
             target,
             '/speech.SpeechService/ProcessSpeech',
             speech__service__pb2.AudioRequest.SerializeToString,
