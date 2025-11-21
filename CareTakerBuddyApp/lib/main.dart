@@ -300,7 +300,7 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                 ),
                 const SizedBox(height: 20),
                 DropdownButtonFormField<String>(
-                  value: gender,
+                  initialValue: gender,
                   dropdownColor: const Color(0xFF162D41),
                   style: const TextStyle(color: Colors.white),
                   items: ["Female", "Male", "Other"]
@@ -1090,8 +1090,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               onPrimary: Colors.black,
               surface: Color(0xFF162D41),
               onSurface: Colors.white,
-            ),
-            dialogBackgroundColor: const Color(0xFF162D41),
+            ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF162D41)),
           ),
           child: child!,
         );
@@ -1117,8 +1116,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               onPrimary: Colors.black,
               surface: Color(0xFF162D41),
               onSurface: Colors.white,
-            ),
-            dialogBackgroundColor: const Color(0xFF162D41),
+            ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF162D41)),
           ),
           child: child!,
         );

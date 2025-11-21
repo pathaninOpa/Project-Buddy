@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 Future<UserCredential> signInWithGoogle() async {
   // Trigger the authentication flow
-  final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
+  final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
 
   // 1. ADD NULL CHECK HERE
   if (googleUser == null) {

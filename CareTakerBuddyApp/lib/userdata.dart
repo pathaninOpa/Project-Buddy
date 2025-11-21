@@ -22,10 +22,10 @@ class CareGiver {
 
   // Original method (kept)
   void caregiverInfo() {
-    name = this.name;
-    age = this.age;
-    gender = this.gender;
-    role = this.role;
+    name = name;
+    age = age;
+    gender = gender;
+    role = role;
   }
 
   // Firestore → Model

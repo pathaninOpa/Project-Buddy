@@ -66,7 +66,7 @@ Future<Map<String, dynamic>?> showCaregiverOnboarding(
 
                     // GENDER DROPDOWN
                     DropdownButtonFormField<String>(
-                      value: gender,
+                      initialValue: gender,
                       dropdownColor: const Color(0xFF162D41),
                       style: const TextStyle(color: Colors.white),
                       items: ["Female", "Male", "Other"]
