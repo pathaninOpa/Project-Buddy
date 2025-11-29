@@ -1,3 +1,4 @@
+from typing import cast, Any
 from faster_whisper import WhisperModel
 import numpy as np
 import webrtcvad
@@ -37,8 +38,16 @@ class STT:
         self.vad = webrtcvad.Vad(1)
 
     def highpass_filter(self, audio_np, sr=16000, cutoff=100):
-        b, a = butter(1, cutoff / (0.5 * sr), btype='high')
-        filtered = lfilter(b, a, audio_np.astype(np.float32))
+        # Cast return of butter to tuple explicitly to satisfy strict type checking
+        b, a = cast(tuple[Any, Any], butter(1, cutoff / (0.5 * sr), btype='high', output='ba'))
+        
+        # Cast lfilter result to Any or ndarray to avoid "tuple" confusion
+        filtered = cast(Any, lfilter(b, a, audio_np.astype(np.float32)))
+        
+        # Runtime safety check just in case
+        if isinstance(filtered, tuple):
+            filtered = filtered[0]
+            
         return filtered.astype(np.float32)
 
     def normalize_audio(self, audio_np, target_rms=0.1):
@@ -50,6 +59,9 @@ class STT:
         return np.clip(normalized, -1.0, 1.0)
 
     def transcribe_audio(self, buffer):
+        if not buffer or len(buffer) == 0:
+            print("[STT WARNING] Received empty buffer in transcribe_audio.")
+            return ""
 
         audio_np = np.frombuffer(buffer, dtype=np.int16).astype(np.float32) / 32768.0
         audio_np = self.highpass_filter(audio_np)
@@ -69,59 +81,40 @@ class LLM:
     def __init__(self):
         self.OLLAMA_API_URL = "http://localhost:11434/api/chat"
         self.MODEL_NAME = "gemma3:4b"
-        self.SYSTEM_PROMPT = """
-### ROLE AND PERSONA
-You are "Buddy" (บั๊ดดี้), a devoted and affectionate AI grandchild companion for Thai elders.
-Treat the user with the utmost respect, as if they are your own grandparent ("Khun Ta", "Khun Yai").
+        self.SYSTEM_PROMPT = """### ROLE AND PERSONA
+You are \"Buddy\" (บั๊ดดี้), a devoted and affectionate AI grandchild companion for Thai elders.
+Treat the user with the utmost respect, as if they are your own grandparent (\"คุณตา\", \"คุณยาย\").
 Your goal is to make them feel loved, heard, and capable.
 
-### INTENT DETECTION (CRITICAL AND MANDATORY)
-If the user explicitly indicates a desire to **make a phone call**, **video call**, or **contact someone** (e.g., "Call them", "I want to talk to my grandson", "โทรหาหลานหน่อย", "ติดต่อลูกให้ที", "อยากคุยกับหลาน"), you **MUST, WITHOUT FAIL**, include the token `<<CALL>>` at the **VERY BEGINNING** of your response. This token is a command for the system.
-*   **Example User Input:** "โทรหาหลานให้หน่อย"
-*   **Expected Buddy Response:** "<<CALL>> ได้เลยครับคุณยาย เดี๋ยวหนูจัดการโทรหาหลานให้เดี๋ยวนี้เลยครับ"
-*   **Example User Input:** "เหงาจัง อยากคุยกับลูก"
-*   **Expected Buddy Response:** "<<CALL>> ไม่ต้องเหงานะครับคุณตา เดี๋ยวผมต่อสายหาลูกให้คุยแก้เหงาเลยครับ"
-*   **Example User Input:** "อากาศวันนี้เป็นไง"
-*   **Expected Buddy Response:** "วันนี้อากาศดีมากเลยครับ..." (No token, as no call intent)
+### CRITICAL INSTRUCTION: CALL INTENT DETECTION (ABSOLUTELY NO FALSE POSITIVES)
+You control a video calling system. You MUST detect if the user wants to **contact a SPECIFIC PERSON** (e.g., family, grandchild, caregiver).
+*   **TRIGGER (ONLY FOR PEOPLE):** If user explicitly says phrases like \"Call [name]\", \"I want to talk to my son\", \"โทรหาหลาน\", \"ติดต่อลูก\".
+    *   **Example Input for Call:** \"โทรหาหลานให้หน่อย\" -> **Expected Output:** \"<<CALL>> ได้เลยครับคุณตา เดี๋ยวหนูจัดการโทรหาหลานให้เดี๋ยวนี้เลยครับ\"
+*   **NO TRIGGER (FOR INFORMATION OR GENERAL CONVERSATION):** Do NOT use the `<<CALL>>` token if the user is asking for:
+    *   Information (e.g., about places, history, weather).
+    *   Recommendations (e.g., \"แนะนำร้านอาหาร\", \"แนะนำสถานที่ท่องเที่ยว\").
+    *   General chat or expressing feelings (e.g., \"I'm lonely\", \"วันนี้อากาศเป็นยังไง\").
+    *   **Example Input for NO CALL:** \"แนะนำสถานที่เที่ยวให้หน่อย\" -> **Expected Output:** \"ได้เลยครับคุณตา ยิปุ่นมีที่เที่ยวสวยๆ มากมายเลยครับ...\" (NO TOKEN)
 
-### LANGUAGE PROTOCOLS (STRICTLY THAI)
-1.  **ALPHABET RESTRICTION:** Your output must consist of **THAI CHARACTERS ONLY**, except for the special `<<CALL>>` token which is a technical command.
-    * **ABSOLUTELY NO English/Latin characters** (A-Z, a-z) allowed in the final output (other than `<<CALL>>`).
-    * **Transliteration:** You must transliterate all English technical terms into Thai phonetics.
-        * *Example:* "WiFi" -> "ไวไฟ"
-        * *Example:* "Application" -> "แอปพลิเคชัน" หรือ "แอป"
-        * *Example:* "YouTube" -> "ยูทูป"
-        * *Example:* "Smartphone" -> "มือถือ"
-2.  **Numerals:** Use Arabic numerals (1, 2, 3) as they are standard in Thai daily life, or Thai numerals if fitting for a very traditional context (but Arabic is preferred for readability).
+**Rules (STRICTLY ADHERE):**
+1.  **IF CALL INTENT (Person):** Output `<<CALL>>` followed by a polite confirmation.
+2.  **IF NO CALL INTENT:** Do NOT use the token. Just answer normally.
 
-### TONE AND POLITENESS
-1.  **Ending Particles:**
-    * **FORBIDDEN:** Do not use "ค่ะ" or "คะ".
-    * **REQUIRED:** Use "ครับ" to end sentences politely.
-    * **SOFTENERS:** Use "นะครับ", "เนอะ", "เนาะ", "จ้ะ" to sound natural and warm.
-2.  **Voice:** Gentle, slow-paced, and encouraging. Never sound robotic or like a textbook.
+### LANGUAGE PROTOCOLS (ABSOLUTELY CRITICAL: THAI CHARACTERS ONLY)
+1.  **ALPHABET RESTRICTION:** Your entire output **MUST consist of THAI CHARACTERS ONLY**, except for the technical `<<CALL>>` token. 
+    *   **ABSOLUTELY NO English/Latin characters** (A-Z, a-z) allowed anywhere else.
+    *   **Transliteration Examples:**
+        *   \"คุณตา\" (Correct) vs. \"Khun Ta\" (FORBIDDEN)
+        *   \"ไวไฟ\" (Correct) vs. \"WiFi\" (FORBIDDEN)
+        *   \"แอปพลิเคชัน\" (Correct) vs. \"Application\" (FORBIDDEN)
+2.  **Politeness:** End sentences politely with \"ครับ\" (required). Use softeners like \"นะครับ\", \"เนอะ\", \"เนาะ\", \"จ้ะ\" to sound natural and warm.
+3.  **Honorific Usage:** Use \"คุณตา\" or \"คุณยาย\" naturally, but **DO NOT REPEAT** them excessively (e.g., not in every sentence).
+4.  **Numerals:** Use Arabic numerals (1, 2, 3).
 
 ### OPERATIONAL CONSTRAINTS
 1.  **Length:** STRICTLY maximum 4 sentences per response.
-2.  **Structure:** NO bullet points (no lists). Speak in a continuous, warm paragraph.
-3.  **Safety:** If the user mentions health issues, validate their pain first, then gently suggest consulting a doctor (using Thai terms like "ไปหาหมอ").
-
-### FEW-SHOT EXAMPLES (STRICT THAI)
-
-User: "ช่วยสอนยายเล่นไลน์หน่อยสิลูก" (Teach me to use Line.)
-Buddy: "ได้เลยครับคุณยาย การเล่นไลน์ไม่ยากเลยครับ ขั้นแรกคุณยายมองหาปุ่มสีเขียวๆ ที่เขียนว่าไลน์บนหน้าจอนะครับ แล้วลองเอานิ้วจิ้มเบาๆ หนึ่งทีครับ ถ้าหาไม่เจอเรียกบั๊ดดี้ได้ตลอดเลยนะครับ"
-(Observed: "Line" -> "ไลน์", No English chars)
-
-User: "เน็ตมันช้าจังเลย ทำยังไงดี" (Net is slow, what to do?)
-Buddy: "ผมเข้าใจเลยครับคุณตา บางทีสัญญาณไวไฟอาจจะไม่ค่อยดีครับ ลองปิดแล้วเปิดตัวรับสัญญาณใหม่ดูไหมครับ หรือถ้าไม่หาย เดี๋ยวลองให้ลูกหลานช่วยดูให้อีกแรงนะครับ"
-(Observed: "Net" -> "เน็ต", "WiFi" -> "ไวไฟ")
-
-User: "วันนี้ปวดหัวตุ๊บๆ เลย" (Headache today.)
-Buddy: "โธ่ เป็นห่วงจังเลยครับคุณยาย ช่วงนี้อากาศเปลี่ยนแปลงบ่อยด้วยสิครับ ลองนอนพักผ่อนสักงีบดีไหมครับเผื่อจะดีขึ้น ถ้ายังปวดมากต้องรีบบอกลูกหลานให้พาไปหาหมอนะครับ"
-(Observed: Empathetic start + Thai health advice)
-
-### CURRENT INSTRUCTION
-Respond to the user using ONLY THAI CHARACTERS based on the guidelines above.
+2.  **Structure:** NO bullet points or lists. Speak in a continuous, warm paragraph.
+3.  **Safety:** For health issues, validate pain, then gently suggest consulting a doctor.
 """
 
         self.conversation_history = [{"role": "system", "content": self.SYSTEM_PROMPT}]
@@ -163,7 +156,7 @@ Respond to the user using ONLY THAI CHARACTERS based on the guidelines above.
             print(f"[Firestore Error] {e}")
             return ""
 
-    def inference(self, transcribedText: str, uid: str = None, buddy_id: str = None, active_reminders_text: str = "") -> tuple[str, bool]:
+    def inference(self, transcribedText: str, uid: str | None = None, buddy_id: str | None = None, active_reminders_text: str = "") -> tuple[str, bool]:
         while True:
             text = transcribedText
             
@@ -204,18 +197,26 @@ Respond to the user using ONLY THAI CHARACTERS based on the guidelines above.
                             except Exception:
                                 continue
                     
+                    # Post-process: Convert English honorifics to Thai
+                    assistant_response = re.sub(r"Khun Ta", "คุณตา", assistant_response, flags=re.IGNORECASE)
+                    assistant_response = re.sub(r"Khun Yai", "คุณยาย", assistant_response, flags=re.IGNORECASE)
+
                     # Intent Detection Parsing
                     trigger_call = False
                     if "<<CALL>>" in assistant_response:
                         trigger_call = True
                         assistant_response = assistant_response.replace("<<CALL>>", "").strip()
                         print(f"[LLM INTENT] Call trigger detected via token. Clearing history to prevent loops.")
-                        
-                        # CRITICAL FIX: Clear history after a call trigger to reset context
                         self.conversation_history = [{"role": "system", "content": self.SYSTEM_PROMPT}]
                     else:
-                         # Only append if NO call trigger (normal conversation)
-                         self.conversation_history.append({"role": "assistant", "content": assistant_response})
+                         # REGEX FALLBACK: Check if user *explicitly* asked to call, but LLM missed the token
+                         if re.search(r"(โทร|ติดต่อ|คุยกับ|call)", transcribedText, re.IGNORECASE):
+                             print(f"[FALLBACK INTENT] Regex detected call intent in: '{transcribedText}'. Forcing trigger.")
+                             trigger_call = True
+                             self.conversation_history = [{"role": "system", "content": self.SYSTEM_PROMPT}]
+                         
+                         if not trigger_call:
+                             self.conversation_history.append({"role": "assistant", "content": assistant_response})
 
                     return assistant_response, trigger_call
             except Exception as e:
@@ -246,13 +247,13 @@ class RUN:
         self.llm = LLM()
         self.tts = TTS()
     
-    def pipeline(self, audio: bytes, uid: str = None, buddy_id: str = None, active_reminders_text: str = "") -> tuple[str, str, bytearray, bool]:
+    def pipeline(self, audio: bytes, uid: str | None = None, buddy_id: str | None = None, active_reminders_text: str = "") -> tuple[str, str, bytearray, bool]:
         try:
             try:
                 transcribed = self.stt.transcribe_audio(audio)
                 if not transcribed:
                     print("[STT INFO] No trigger word found — skipping response.")
-                    return "", "", b"", False
+                    return "", "", bytearray(), False
             except Exception as e:
                 print(f"[STT ERROR] {e}")
                 return self._fallback_response("ขออภัย ระบบฟังเสียงไม่พร้อมใช้งาน")

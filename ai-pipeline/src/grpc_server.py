@@ -27,6 +27,11 @@ class SpeechServiceServicer(speech_service_pb2_grpc.SpeechServiceServicer):
                     current_reminders_text = request.active_reminders_text
 
             logging.info(f"Received {len(audio_buffer)} bytes of audio data. UID: {current_uid}, Buddy: {current_buddy_id}")
+            
+            if len(audio_buffer) == 0:
+                logging.warning(f"Empty audio buffer received from UID: {current_uid}. Skipping processing.")
+                return
+
             # Pass reminders text to pipeline
             transcribed_text, response_from_llm, response_audio, trigger_call = self.pipeline.pipeline(
                 bytes(audio_buffer), 
