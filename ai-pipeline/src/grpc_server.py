@@ -10,21 +10,31 @@ class SpeechServiceServicer(speech_service_pb2_grpc.SpeechServiceServicer):
         self.pipeline = RUN()
         self.logger = ChatLogger()
 
-    def ProcessSpeech(self, request_iterator, context):
+    def ProcessSpeech(self, request, context):
         audio_buffer = bytearray()
         current_uid = "unknown_caregiver"
         current_buddy_id = "unknown_buddy"
         current_reminders_text = ""
 
+        # 1. Attempt to read from Metadata (Headers)
+        for key, value in context.invocation_metadata():
+            if key == 'uid':
+                current_uid = value
+            elif key == 'buddy_id':
+                current_buddy_id = value
+            elif key == 'active_reminders_text':
+                current_reminders_text = value
+
         try:
-            for request in request_iterator:
-                audio_buffer.extend(request.audio_data)
-                if hasattr(request, 'uid') and request.uid:
-                    current_uid = request.uid
-                if hasattr(request, 'buddy_id') and request.buddy_id:
-                    current_buddy_id = request.buddy_id
-                if hasattr(request, 'active_reminders_text') and request.active_reminders_text:
-                    current_reminders_text = request.active_reminders_text
+            for req_chunk in request:
+                audio_buffer.extend(req_chunk.audio_data)
+                # 2. Fallback/Override from Request Payload (if sent in first chunk)
+                if hasattr(req_chunk, 'uid') and req_chunk.uid:
+                    current_uid = req_chunk.uid
+                if hasattr(req_chunk, 'buddy_id') and req_chunk.buddy_id:
+                    current_buddy_id = req_chunk.buddy_id
+                if hasattr(req_chunk, 'active_reminders_text') and req_chunk.active_reminders_text:
+                    current_reminders_text = req_chunk.active_reminders_text
 
             logging.info(f"Received {len(audio_buffer)} bytes of audio data. UID: {current_uid}, Buddy: {current_buddy_id}")
             
@@ -63,7 +73,7 @@ def serve():
     try:
         private_key = open("/home/nicestrik/key.pem","rb").read()
         certificate_chain = open("/home/nicestrik/cert.pem","rb").read()
-        server_credentials = grpc.ssl_server_credentials(((private_key, certificate_chain,),))
+        server_credentials = grpc.ssl_server_credentials([(private_key, certificate_chain)])
         server.add_secure_port('[::]:50051',server_credentials)
         server.start()
         print("gRPC server started on port 50051")

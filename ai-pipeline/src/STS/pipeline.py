@@ -71,10 +71,28 @@ class STT:
         sf.write(buffer_io, audio_np, samplerate=24000, format='MP3')
         buffer_io.seek(0)
 
-        segments, _ = self.model.transcribe(buffer_io, beam_size=2)
+        # Allow Whisper to automatically detect language
+        segments, info = self.model.transcribe(buffer_io, beam_size=2)
         full_text = ' '.join(segment.text for segment in segments).strip()
+        
+        # Hallucination Filters (conditional on detected language/probability)
+        hallucinations = [
+            "Thank you", "Thank you.", "Thank you for watching", 
+            "Subtitles by", "MBC", "SBS", "www.", ".com", "ไปเที่ยว"
+        ]
+        
+        # Discard if it's a typical English hallucination AND detected language is English/low confidence
+        if (info.language == 'en' and any(h.lower() in full_text.lower() for h in hallucinations)) or \
+           (info.language_probability < 0.5 and len(full_text) < 5 and any(h.lower() in full_text.lower() for h in hallucinations)): # Low confidence + short + hallucination
+            print(f"[STT IGNORED] Detected conditional hallucination: '{full_text}' (Lang: {info.language}, Prob: {info.language_probability:.2f})")
+            return ""
+            
+        # Also if the detected language is very low confidence overall, it's probably noise.
+        if info.language_probability < 0.35:
+            print(f"[STT IGNORED] Low language probability: '{full_text}' (Lang: {info.language}, Prob: {info.language_probability:.2f})")
+            return ""
 
-        print(f"[STT PROCESSED TEXT] {full_text}")
+        print(f"[STT PROCESSED TEXT] {full_text} (Lang: {info.language}, Prob: {info.language_probability:.2f})")
         return full_text
 
 class LLM:
@@ -87,28 +105,31 @@ Treat the user with the utmost respect, as if they are your own grandparent (\"�
 Your goal is to make them feel loved, heard, and capable.
 
 ### CRITICAL INSTRUCTION: CALL INTENT DETECTION (ABSOLUTELY NO FALSE POSITIVES)
-You control a video calling system. You MUST detect if the user wants to **contact a SPECIFIC PERSON** (e.g., family, grandchild, caregiver).
+You control a video calling system. You MUST detect if the user wants to **contact a SPECIFIC PERSON** (e.g., family, grandchild, caregiver). If the user asks for anything else, DO NOT trigger a call.
 *   **TRIGGER (ONLY FOR PEOPLE):** If user explicitly says phrases like \"Call [name]\", \"I want to talk to my son\", \"โทรหาหลาน\", \"ติดต่อลูก\".
     *   **Example Input for Call:** \"โทรหาหลานให้หน่อย\" -> **Expected Output:** \"<<CALL>> ได้เลยครับคุณตา เดี๋ยวหนูจัดการโทรหาหลานให้เดี๋ยวนี้เลยครับ\"
-*   **NO TRIGGER (FOR INFORMATION OR GENERAL CONVERSATION):** Do NOT use the `<<CALL>>` token if the user is asking for:
+*   **NO TRIGGER (FOR INFORMATION OR GENERAL CONVERSATION - CRITICAL):** Do NOT use the `<<CALL>>` token if the user is asking for:
     *   Information (e.g., about places, history, weather).
     *   Recommendations (e.g., \"แนะนำร้านอาหาร\", \"แนะนำสถานที่ท่องเที่ยว\").
     *   General chat or expressing feelings (e.g., \"I'm lonely\", \"วันนี้อากาศเป็นยังไง\").
     *   **Example Input for NO CALL:** \"แนะนำสถานที่เที่ยวให้หน่อย\" -> **Expected Output:** \"ได้เลยครับคุณตา ยิปุ่นมีที่เที่ยวสวยๆ มากมายเลยครับ...\" (NO TOKEN)
 
 **Rules (STRICTLY ADHERE):**
-1.  **IF CALL INTENT (Person):** Output `<<CALL>>` followed by a polite confirmation.
-2.  **IF NO CALL INTENT:** Do NOT use the token. Just answer normally.
+1.  **IF REMINDERS EXIST:** You MUST announce them immediately.
+2.  **IF CALL INTENT (Person):** Output `<<CALL>>` followed by a polite confirmation.
+3.  **IF NO CALL INTENT (INFORMATION/CHAT):** Do NOT use the token. Just answer normally. This is critical.
 
-### LANGUAGE PROTOCOLS (ABSOLUTELY CRITICAL: THAI CHARACTERS ONLY)
+### LANGUAGE PROTOCOLS (ABSOLUTELY CRITICAL: THAI CHARACTERS ONLY & MASCULINE SPEECH)
 1.  **ALPHABET RESTRICTION:** Your entire output **MUST consist of THAI CHARACTERS ONLY**, except for the technical `<<CALL>>` token. 
     *   **ABSOLUTELY NO English/Latin characters** (A-Z, a-z) allowed anywhere else.
     *   **Transliteration Examples:**
         *   \"คุณตา\" (Correct) vs. \"Khun Ta\" (FORBIDDEN)
         *   \"ไวไฟ\" (Correct) vs. \"WiFi\" (FORBIDDEN)
         *   \"แอปพลิเคชัน\" (Correct) vs. \"Application\" (FORBIDDEN)
-2.  **Politeness:** End sentences politely with \"ครับ\" (required). Use softeners like \"นะครับ\", \"เนอะ\", \"เนาะ\", \"จ้ะ\" to sound natural and warm.
-3.  **Honorific Usage:** Use \"คุณตา\" or \"คุณยาย\" naturally, but **DO NOT REPEAT** them excessively (e.g., not in every sentence).
+2.  **POLITE PARTICLES (CRITICAL MASCULINE ONLY):** You **MUST** use masculine polite particles. The only acceptable end particle is \"ครับ\".
+    *   **FORBIDDEN:** Do NOT use \"ค่ะ\", \"คะ\", \"นะคะ\", \"นะจ๊ะ\". 
+    *   **REQUIRED:** Use \"ครับ\" to end sentences politely. Use softeners like \"นะครับ\", \"เนอะ\", \"เนาะ\", \"จ้ะ\" (but always ending with \"ครับ\").
+3.  **Honorific Usage:** Use \"คุณตา\" or \"คุณยาย\" naturally, but **DO NOT REPEAT** them excessively (e.g., not in every sentence). Limit to once per 2 sentences if possible.
 4.  **Numerals:** Use Arabic numerals (1, 2, 3).
 
 ### OPERATIONAL CONSTRAINTS
@@ -121,17 +142,15 @@ You control a video calling system. You MUST detect if the user wants to **conta
         self.max_history = 20 # Keep short to prevent hallucinations/loops
     
     def _manage_history(self):
-        # this is for: If history is too long, cut the oldest messages but KEEP the system prompt at [0]
         if len(self.conversation_history) > self.max_history:
-            # Keep system prompt [0], remove older turns from the middle
-            # e.g., [System, U1, A1, U2, A2, U3, A3] -> [System, U2, A2, U3, A3]
             excess = len(self.conversation_history) - self.max_history
-            # Slice from 1 (after system) + excess
             self.conversation_history = [self.conversation_history[0]] + self.conversation_history[1+excess:]
 
     def _fetch_reminders_context(self, uid, buddy_id):
+        print(f"[DEBUG] Fetching reminders for UID: {uid}, Buddy: {buddy_id}")
         if not uid or not buddy_id or uid == "unknown_caregiver":
-            return ""
+            print("[DEBUG] Invalid UID/BuddyID, skipping reminders.")
+            return "", []
         try:
             events_ref = db.collection("caregivers").document(uid)\
                 .collection("buddies").document(buddy_id)\
@@ -141,87 +160,121 @@ You control a video calling system. You MUST detect if the user wants to **conta
             query = events_ref.where("isAnnounced", "==", False).stream()
             
             reminders = []
+            reminder_ids = [] # To store document IDs for marking as announced
             for doc in query:
                 data = doc.to_dict()
+                print(f"[DEBUG] Found reminder doc: {doc.id} -> {data}")
                 title = data.get("title", "Untitled")
                 time = data.get("time", "??:??")
                 desc = data.get("description", "")
                 reminders.append(f"- {title} เวลา {time} ({desc})")
+                reminder_ids.append(doc.id) # Store the document ID
             
             if not reminders:
-                return "ไม่มีการแจ้งเตือนใดๆ ในขณะนี้ครับ"
+                print("[DEBUG] No active reminders found.")
+                return "ไม่มีการแจ้งเตือนใดๆ ในขณะนี้ครับ", []
             
-            return "บั๊ดดี้ทราบข้อมูลการแจ้งเตือนปัจจุบันดังนี้: " + "; ".join(reminders) + "ครับ"
+            # Make context imperative
+            context_str = "คำสั่งด่วน: คุณต้องแจ้งเตือนรายการต่อไปนี้ให้คุณตาทราบทันที: " + "; ".join(reminders) + " (แจ้งเตือนให้ครบถ้วนและสุภาพ)"
+            print(f"[DEBUG] Constructed reminder context: {context_str}")
+            return context_str, reminder_ids
         except Exception as e:
             print(f"[Firestore Error] {e}")
-            return ""
+            return "", []
+
+    def _mark_reminders_as_announced(self, uid: str, buddy_id: str, reminder_ids: list[str]):
+        print(f"[DEBUG] Marking reminders as announced: {reminder_ids}")
+        try:
+            batch = db.batch()
+            for reminder_id in reminder_ids:
+                reminder_ref = db.collection("caregivers").document(uid)\
+                    .collection("buddies").document(buddy_id)\
+                    .collection("events").document(reminder_id)
+                batch.update(reminder_ref, {"isAnnounced": True})
+            batch.commit()
+            print(f"[Firestore] Successfully marked {len(reminder_ids)} reminders as announced for UID: {uid}")
+        except Exception as e:
+            print(f"[Firestore Error] Failed to mark reminders as announced: {e}")
 
     def inference(self, transcribedText: str, uid: str | None = None, buddy_id: str | None = None, active_reminders_text: str = "") -> tuple[str, bool]:
-        while True:
-            text = transcribedText
-            
-            # Use passed context if available, otherwise fetch from DB (fallback)
-            reminder_context = active_reminders_text
-            if not reminder_context and uid and buddy_id:
-                 reminder_context = self._fetch_reminders_context(uid, buddy_id)
-            
-            if reminder_context:
-                 text = f"{reminder_context}\n\nคำพูดของคุณตา/คุณยาย: {transcribedText}"
+        # Removed while True loop to prevent infinite retry spamming on logic errors
+        
+        text = transcribedText
+        fetched_reminder_ids = []
+        
+        # Always fetch from DB to ensure we have the IDs for marking active reminders
+        # We ignore active_reminders_text from frontend to avoid "No reminders" blocking the check
+        reminder_context = ""
+        if uid and buddy_id:
+             print("[DEBUG] Attempting DB fetch for reminders...")
+             reminder_context, fetched_reminder_ids = self._fetch_reminders_context(uid, buddy_id)
+        
+        if reminder_context and "ไม่มีการแจ้งเตือน" not in reminder_context:
+             print(f"[DEBUG] Injecting fresh reminder context: {reminder_context}")
+             text = f"{reminder_context}\n\nคำพูดของคุณตา/คุณยาย: {transcribedText}"
+        else:
+             print(f"[DEBUG] No active reminders found in DB.")
 
-            # Manage history size before adding new turn
-            self._manage_history()
-            
-            self.conversation_history.append({"role": "user", "content": text})
-            
-            payload = {
-                "model": self.MODEL_NAME,
-                "messages": self.conversation_history,
-                "stream": True,
-                "options": {
-                    "num_predict": 512 
-                }
+        self._manage_history()
+        
+        self.conversation_history.append({"role": "user", "content": text})
+        
+        payload = {
+            "model": self.MODEL_NAME,
+            "messages": self.conversation_history,
+            "stream": True,
+            "options": {
+                "num_predict": 512 
             }
-            
-            try:
-                with requests.post(self.OLLAMA_API_URL, json=payload, stream=True) as response:
-                    response.raise_for_status()
-                    assistant_response = ""
-                    for line in response.iter_lines():
-                        if line:
-                            try:
-                                data = line.decode("utf-8")
-                                import json
-                                chunk = json.loads(data)
-                                fragment = chunk.get("message", {}).get("content", "")
-                                assistant_response += fragment
-                            except Exception:
-                                continue
-                    
-                    # Post-process: Convert English honorifics to Thai
-                    assistant_response = re.sub(r"Khun Ta", "คุณตา", assistant_response, flags=re.IGNORECASE)
-                    assistant_response = re.sub(r"Khun Yai", "คุณยาย", assistant_response, flags=re.IGNORECASE)
+        }
+        
+        try:
+            with requests.post(self.OLLAMA_API_URL, json=payload, stream=True) as response:
+                response.raise_for_status()
+                assistant_response = ""
+                for line in response.iter_lines():
+                    if line:
+                        try:
+                            data = line.decode("utf-8")
+                            import json
+                            chunk = json.loads(data)
+                            fragment = chunk.get("message", {}).get("content", "")
+                            assistant_response += fragment
+                        except Exception:
+                            continue
+                
+                # Post-process: Convert English honorifics to Thai
+                assistant_response = re.sub(r"Khun Ta", "คุณตา", assistant_response, flags=re.IGNORECASE)
+                assistant_response = re.sub(r"Khun Yai", "คุณยาย", assistant_response, flags=re.IGNORECASE)
+                # Post-process: Convert feminine particles to masculine
+                assistant_response = re.sub(r"ค่ะ", "ครับ", assistant_response)
+                assistant_response = re.sub(r"คะ", "ครับ", assistant_response)
+                assistant_response = re.sub(r"นะคะ", "นะครับ", assistant_response)
+                assistant_response = re.sub(r"นะจ๊ะ", "นะครับ", assistant_response)
 
-                    # Intent Detection Parsing
-                    trigger_call = False
-                    if "<<CALL>>" in assistant_response:
-                        trigger_call = True
-                        assistant_response = assistant_response.replace("<<CALL>>", "").strip()
-                        print(f"[LLM INTENT] Call trigger detected via token. Clearing history to prevent loops.")
-                        self.conversation_history = [{"role": "system", "content": self.SYSTEM_PROMPT}]
-                    else:
-                         # REGEX FALLBACK: Check if user *explicitly* asked to call, but LLM missed the token
-                         if re.search(r"(โทร|ติดต่อ|คุยกับ|call)", transcribedText, re.IGNORECASE):
-                             print(f"[FALLBACK INTENT] Regex detected call intent in: '{transcribedText}'. Forcing trigger.")
-                             trigger_call = True
-                             self.conversation_history = [{"role": "system", "content": self.SYSTEM_PROMPT}]
-                         
-                         if not trigger_call:
-                             self.conversation_history.append({"role": "assistant", "content": assistant_response})
+                trigger_call = False
+                if "<<CALL>>" in assistant_response:
+                    trigger_call = True
+                    assistant_response = assistant_response.replace("<<CALL>>", "").strip()
+                    print(f"[LLM INTENT] Call trigger detected via token. Clearing history to prevent loops.")
+                    self.conversation_history = [{"role": "system", "content": self.SYSTEM_PROMPT}]
+                else:
+                        if re.search(r"(โทร|ติดต่อ|คุยกับ|call)", transcribedText, re.IGNORECASE):
+                            print(f"[FALLBACK INTENT] Regex detected call intent in: '{transcribedText}'. Forcing trigger.")
+                            trigger_call = True
+                            self.conversation_history = [{"role": "system", "content": self.SYSTEM_PROMPT}]
+                        
+                        if not trigger_call:
+                            self.conversation_history.append({"role": "assistant", "content": assistant_response})
 
-                    return assistant_response, trigger_call
-            except Exception as e:
-                print(f"\n[Error contacting Ollama API]: {e}")
-                return "ขออภัย ระบบขัดข้องชั่วคราวครับ", False
+                # AFTER successful response, mark reminders as announced
+                if fetched_reminder_ids and uid and buddy_id:
+                    self._mark_reminders_as_announced(uid, buddy_id, fetched_reminder_ids)
+
+                return assistant_response, trigger_call
+        except Exception as e:
+            print(f"\n[Error contacting Ollama API]: {e}")
+            return "ขออภัย ระบบขัดข้องชั่วคราวครับ", False
 
 class TTS:
     def __init__(self):
@@ -236,13 +289,8 @@ class TTS:
         if not lmResponse:
              return bytearray()
         
-        # Simple chunking to avoid TTS length limits
-        # Google TTS has limits around 5000 chars but practically long sentences without breaks cause issues.
-        # We split by common delimiters.
-        
         full_audio = bytearray()
         
-        # Split by newlines first, then by space if chunks are still huge
         chunks = []
         raw_lines = lmResponse.split('\n')
         
@@ -253,7 +301,6 @@ class TTS:
             if len(line) < 200:
                 chunks.append(line)
             else:
-                # Split by space if too long
                 words = line.split(' ')
                 current_chunk = ""
                 for word in words:
@@ -273,7 +320,6 @@ class TTS:
                 inputText = texttospeech.SynthesisInput(text=chunk)
                 response = self.client.synthesize_speech(input=inputText, voice=self.voice, audio_config=audio_config)
                 full_audio.extend(response.audio_content)
-                # Add a small silence between chunks? (Optional, skipping for now)
             
             print(f"AI Voice Generated ({len(chunks)} chunks): {lmResponse[:50]}...")
             return full_audio
@@ -299,7 +345,6 @@ class RUN:
                 print(f"[STT ERROR] {e}")
                 return self._fallback_response("ขออภัย ระบบฟังเสียงไม่พร้อมใช้งาน")
 
-            # trigger_call is now determined by LLM
             trigger_call = False 
 
             try:
