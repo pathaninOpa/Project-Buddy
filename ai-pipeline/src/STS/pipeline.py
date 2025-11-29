@@ -137,8 +137,8 @@ You control a video calling system. You MUST detect if the user wants to **conta
                 .collection("buddies").document(buddy_id)\
                 .collection("events")
             
-            # Filter for active reminders
-            query = events_ref.where("finishAnnounce", "==", False).stream()
+            # Filter for active reminders using new field "isAnnounced"
+            query = events_ref.where("isAnnounced", "==", False).stream()
             
             reminders = []
             for doc in query:
@@ -235,11 +235,52 @@ class TTS:
     def genVoice(self, lmResponse: str) -> bytearray:
         if not lmResponse:
              return bytearray()
-        inputText = texttospeech.SynthesisInput(text=lmResponse)
+        
+        # Simple chunking to avoid TTS length limits
+        # Google TTS has limits around 5000 chars but practically long sentences without breaks cause issues.
+        # We split by common delimiters.
+        
+        full_audio = bytearray()
+        
+        # Split by newlines first, then by space if chunks are still huge
+        chunks = []
+        raw_lines = lmResponse.split('\n')
+        
+        for line in raw_lines:
+            line = line.strip()
+            if not line: continue
+            
+            if len(line) < 200:
+                chunks.append(line)
+            else:
+                # Split by space if too long
+                words = line.split(' ')
+                current_chunk = ""
+                for word in words:
+                    if len(current_chunk) + len(word) + 1 < 200:
+                        current_chunk += word + " "
+                    else:
+                        chunks.append(current_chunk.strip())
+                        current_chunk = word + " "
+                if current_chunk:
+                    chunks.append(current_chunk.strip())
+
         audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.LINEAR16)
-        response = self.client.synthesize_speech(input=inputText,voice=self.voice, audio_config= audio_config)
-        print("AI Voice Generated:", lmResponse)
-        return bytearray(response.audio_content)
+
+        try:
+            for chunk in chunks:
+                if not chunk: continue
+                inputText = texttospeech.SynthesisInput(text=chunk)
+                response = self.client.synthesize_speech(input=inputText, voice=self.voice, audio_config=audio_config)
+                full_audio.extend(response.audio_content)
+                # Add a small silence between chunks? (Optional, skipping for now)
+            
+            print(f"AI Voice Generated ({len(chunks)} chunks): {lmResponse[:50]}...")
+            return full_audio
+
+        except Exception as e:
+            print(f"[TTS ERROR] {e}")
+            return bytearray()
 
 class RUN:
     def __init__(self):
