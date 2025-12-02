@@ -23,6 +23,7 @@ dependencies = [
     "decorator==5.2.1",
     "dill==0.3.8",
     "diskcache==5.6.3",
+    "duckduckgo-search>=6.0.0", # Added duckduckgo-search
     "faster-whisper==1.1.1",
     "filelock==3.18.0",
     "flask==3.1.0",
@@ -53,6 +54,7 @@ dependencies = [
     "noisereduce==3.0.3",
     "numba==0.61.2",
     "numpy==2.2.6",
+    "ollama>=0.6.0",
     "onnxruntime==1.22.0",
     "packaging==25.0",
     "pandas==2.3.0",
