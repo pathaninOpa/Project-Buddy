@@ -50,3 +50,7 @@ app.*.map.json
 *.metadata
 
 ElderBuddyApp\android\gradle.properties
+
+# Firebase Secrets
+google-services.json
+GoogleService-Info.plist
