@@ -1,0 +1,6 @@
+framework module flutter_logs_yoer {
+  umbrella header "flutter_logs_yoer-umbrella.h"
+
+  export *
+  module * { export * }
+}

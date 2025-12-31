@@ -1,0 +1,29 @@
+{
+  "name": "native_device_orientation",
+  "version": "0.0.1",
+  "summary": "Plugin to retrieve native device orientation",
+  "description": "Plugin to retrieve native device orientation",
+  "homepage": "https://github.com/rmtmckenzie/flutter_native_device_orientation",
+  "license": {
+    "file": "../LICENSE"
+  },
+  "authors": {
+    "rmtmckenzie": "rmtmckenzie@gmail.com"
+  },
+  "source": {
+    "path": "."
+  },
+  "source_files": "Classes/**/*",
+  "dependencies": {
+    "Flutter": []
+  },
+  "platforms": {
+    "ios": "11.0"
+  },
+  "pod_target_xcconfig": {
+    "DEFINES_MODULE": "YES",
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]": "i386"
+  },
+  "swift_versions": "5.0",
+  "swift_version": "5.0"
+}

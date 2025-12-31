@@ -1,0 +1,6 @@
+framework module native_device_orientation {
+  umbrella header "native_device_orientation-umbrella.h"
+
+  export *
+  module * { export * }
+}

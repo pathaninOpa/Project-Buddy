@@ -1,0 +1,6 @@
+framework module proximity_sensor {
+  umbrella header "proximity_sensor-umbrella.h"
+
+  export *
+  module * { export * }
+}

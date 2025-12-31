@@ -3,16 +3,20 @@ syntax = "proto3";
 package speech;
 
 service SpeechService {
-  rpc ProcessSpeech (AudioRequest) returns (AudioResponse) {}
+  rpc ProcessSpeech (stream AudioRequest) returns (stream AudioResponse) {}
 }
 
 message AudioRequest {
   bytes audio_data = 1;
   int32 sample_rate = 2;
+  string uid = 3;
+  string buddy_id = 4;
+  string active_reminders_text = 5;
 }
 
 message AudioResponse {
   bytes audio_data = 1;
   string transcribed_text = 2;
   string llm_response = 3;
+  bool trigger_call = 4;
 }

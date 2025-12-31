@@ -1,16 +1,39 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutterapp01/SettingPage.dart';
 import 'package:flutterapp01/userdata.dart';// Your CareGiver class
-import 'dart:convert';
-import 'package:web_socket_channel/io.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'call_screen.dart';
 import 'join_screen.dart';
 import 'SplashPage.dart';
-import 'LoginPage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 // improvement review: use คำนำหน้า like granny kat
 
+void main() async { // <--- 1. Make main() asynchronous
+  // 2. Ensure Flutter is ready to run bindings
+  WidgetsFlutterBinding.ensureInitialized(); 
+
+  // 3. Initialize Firebase before running the app
+  await Firebase.initializeApp( 
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Keep your system UI settings
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+  );
+
+  // 4. Run your root application widget
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    // Use the widget name you prefer (e.g., BuddyApp or MyApp)
+    home: BuddyApp(), 
+  ));
+}
+
+/*
 void main() {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
@@ -20,37 +43,101 @@ void main() {
     home: BuddyApp(),
   ));
 }
-
+*/
 class BuddyApp extends StatelessWidget {
   const BuddyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      routes: {
-        '/': (context) => const SplashPage(),
-        '/login': (context) => const LoginPage(),
-      },
-      initialRoute: '/',
+      home: SplashPage(),
     );
   }
+
+  /*
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      routes: {
+        //'/': (context) => const SplashPage(),
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => BuddyHomePage(
+        uid: FirebaseAuth.instance.currentUser!.uid,
+      ),
+      },
+    initialRoute: user == null ? '/login' : '/home',
+
+    );
+  }*/
 }
 
 
 
 class BuddyHomePage extends StatefulWidget {
-  const BuddyHomePage({super.key});
+  final String uid;
+
+  const BuddyHomePage({super.key, required this.uid});
 
   @override
   State<BuddyHomePage> createState() => _BuddyHomePageState();
 }
 
 class _BuddyHomePageState extends State<BuddyHomePage> {
-  List<Buddy> buddies = [
-    Buddy(name: 'Buddy 1', imagePath: 'assets/Buddy1.jpeg'),
-  ];
+  String caregiverName = "";
+  bool loading = true;
 
+  @override
+  void initState() {
+    super.initState();
+    loadCaregiver();
+    _loadBuddiesFromFirestore();
+  }
+
+  Future<void> _loadBuddiesFromFirestore() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('caregivers')
+          .doc(widget.uid)            // <-- caregiver’s UID
+          .collection('buddies')
+          .get();
+
+      setState(() {
+        buddies = snapshot.docs
+            .map((doc) => Buddy.fromMap(doc.data()))
+            .toList();
+        loadingBuddies = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading buddies: $e');
+      setState(() {
+        loadingBuddies = false;
+      });
+    }
+  }
+
+  Future<void> loadCaregiver() async {
+    final doc = await FirebaseFirestore.instance
+        .collection('caregivers')
+        .doc(widget.uid)
+        .get();
+
+    if (doc.exists) {
+      setState(() {
+        caregiverName = doc['name'];
+        loading = false;
+      });
+    }
+  }
+
+  
+
+
+  List<Buddy> buddies = [];
+  bool loadingBuddies = true; 
+
+  /*
   void _addBuddy() {
     setState(() {
       buddies.add(Buddy(
@@ -58,17 +145,231 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
         imagePath: 'assets/Buddy1.jpeg',
       ));
     });
+  }*/
+
+  void _addBuddy() async {
+  final buddyData = await showAddBuddyPopup(context);
+
+    if (buddyData == null) return; // user cancelled
+
+    // Generate unique ID for this elder
+    final buddyId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Save to Firestore
+    await FirebaseFirestore.instance
+        .collection('caregivers')
+        .doc(widget.uid)
+        .collection('buddies')
+        .doc(buddyId)
+        .set({
+      "buddyID" : buddyId,
+      "buddyName": 'Buddy ${buddies.length + 1}',
+      "name": buddyData['name'],
+      "age": buddyData['age'],
+      "gender": buddyData['gender'],
+      "role": buddyData['role'],
+    });
+
+    await showBuddyIdPopup(context, buddyId);
+
+    setState(() {
+      buddies.add(
+        Buddy(
+          buddyId: buddyId,
+          buddyName: 'Buddy ${buddies.length + 1}',  // card title
+          name: buddyData['name'],                   // elder name
+          age: buddyData['age'],
+          gender: buddyData['gender'],
+          role: buddyData['role'],
+        ),
+      );
+    });
   }
 
+  Future<void> showBuddyIdPopup(BuildContext context, String buddyId) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF162D41),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "Buddy Created!",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Share this ID with your elder so they can connect to this Buddy:",
+                style: TextStyle(color: Colors.white70),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Color(0xFF1F3A52),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: SelectableText(
+                  buddyId,
+                  style: const TextStyle(
+                      color: Color(0xFFFDCD8B), fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextButton.icon(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: buddyId));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Copied to clipboard!")),
+                  );
+                },
+                icon: const Icon(Icons.copy, color: Color(0xFFFDCD8B)),
+                label: const Text(
+                  "Copy Buddy ID",
+                  style: TextStyle(color: Color(0xFFFDCD8B)),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                "Done",
+                style: TextStyle(color: Color(0xFFFDCD8B)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  Future<Map<String, dynamic>?> showAddBuddyPopup(BuildContext context) async {
+  final nameController = TextEditingController();
+  final ageController = TextEditingController();
+  final roleController = TextEditingController();
+  String gender = "Female";
+
+  return await showDialog<Map<String, dynamic>>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return StatefulBuilder(builder: (context, setState) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF162D41),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            "Add Care Receiver",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: nameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: "Name",
+                    labelStyle: TextStyle(color: Colors.white70),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white54)),
+                  ),
+                ),
+                TextField(
+                  controller: ageController,
+                  style: const TextStyle(color: Colors.white),
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: "Age",
+                    labelStyle: TextStyle(color: Colors.white70),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white54)),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                DropdownButtonFormField<String>(
+                  initialValue: gender,
+                  dropdownColor: const Color(0xFF162D41),
+                  style: const TextStyle(color: Colors.white),
+                  items: ["Female", "Male", "Other"]
+                      .map((g) => DropdownMenuItem(
+                            value: g,
+                            child: Text(g, style: const TextStyle(color: Colors.white)),
+                          ))
+                      .toList(),
+                  onChanged: (value) => setState(() => gender = value!),
+                  decoration: const InputDecoration(
+                    labelText: "Gender",
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                ),
+                TextField(
+                  controller: roleController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: "Role (e.g., Grandma, Grandpa)",
+                    labelStyle: TextStyle(color: Colors.white70),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white54)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel", style: TextStyle(color: Colors.redAccent)),
+            ),
+            TextButton(
+              onPressed: () {
+                if (nameController.text.isEmpty ||
+                    ageController.text.isEmpty ||
+                    roleController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Please fill all fields")),
+                  );
+                  return;
+                }
+
+                Navigator.pop(context, {
+                  "name": nameController.text,
+                  "age": ageController.text,
+                  "gender": gender,
+                  "role": roleController.text,
+                });
+              },
+              child: const Text("Confirm", style: TextStyle(color: Color(0xFFFDCD8B))),
+            ),
+          ],
+        );
+      });
+    },
+  );
+}
+
+
+  
   @override
   Widget build(BuildContext context) {
+  /*
     final caregiver = CareGiver(
       cgname: 'Jane Doe',
       cgage: '35',
       cggender: 'Female',
       cgrole: 'Mother',
     );
-  
+  */
+  /*
     final carereceiver = CareReceiver(
       crname: 'Kat',
       crage: '90',
@@ -76,55 +377,78 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
       crrole: 'Grandmother',
       crbirthday: '1933-05-15',
     );
-
+  */
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: const Color.fromRGBO(22, 45, 65, 1),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        titleSpacing: 0,
-        title: Row(
+     appBar: AppBar(
+  backgroundColor: Colors.transparent,
+  elevation: 0,
+  automaticallyImplyLeading: false,
+
+  // ⬇️ Move everything DOWN
+  //toolbarHeight: 120,
+
+  title: Padding(
+    padding: const EdgeInsets.only(left: 23, top: 10), 
+    // ↑ pushed down ~35px
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+
+        // -------------------------
+        //  WELCOME TEXT COLUMN
+        // -------------------------
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(width: 20),
-            const Icon(Icons.menu, color: Colors.white, size: 30),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Welcome,',
-                  style: TextStyle(
-                    color: Color(0xFFFFAFA0),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  caregiver.cgname,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            const Text(
+              'Welcome,',
+              style: TextStyle(
+                color: Color(0xFFFFAFA0), 
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            const Spacer(),
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: CircleAvatar(
-                radius: 30,
-                backgroundImage: AssetImage('assets/profile.jpeg'),
-                backgroundColor: Colors.transparent,
+
+            const SizedBox(height: 2),
+
+            Text(
+              caregiverName,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                height: 1.1,
               ),
             ),
           ],
         ),
-      ),
+
+        const Spacer(),
+
+        // -------------------------
+        //  SETTINGS ICON
+        // -------------------------
+        Padding(
+          padding: const EdgeInsets.only(right: 12), // 👈 move left by 12 px
+          child: IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white, size: 35),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingPage()),
+              );
+            },
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
+
       body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 60, 16, 16),
         child: GridView.count(
@@ -138,7 +462,7 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                   final updatedBuddy = await Navigator.push<Buddy>(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BuddyDetailPage(buddy: buddy, carereceiver: carereceiver),
+                      builder: (context) => BuddyDetailPage(buddy: buddy),
                     ),
                   );
                   if (updatedBuddy != null) {
@@ -149,11 +473,8 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                   }
                 },
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
-                      width: 135,
-                      height: 135,
+                    Expanded(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(16),
                         child: Image.asset(
@@ -162,19 +483,23 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     Text(
-                      buddy.name,
+                      '${buddy.role} ${buddy.name}\'s Buddy',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
+                    )
                   ],
                 ),
+
               );
-            }).toList(),
+            }),
             GestureDetector(
               onTap: _addBuddy,
               child: Column(
@@ -216,9 +541,9 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
 
 class BuddyDetailPage extends StatefulWidget {
   final Buddy buddy;
-  final CareReceiver carereceiver;
+  //final CareReceiver carereceiver;
 
-  const BuddyDetailPage({super.key, required this.buddy, required this.carereceiver});
+  const BuddyDetailPage({super.key, required this.buddy});
 
   @override
   State<BuddyDetailPage> createState() => _BuddyDetailPageState();
@@ -249,7 +574,7 @@ class _BuddyDetailPageState extends State<BuddyDetailPage> {
           icon: const Icon(Icons.navigate_before , color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('${widget.carereceiver.crname}\'s Buddy',
+        title: Text('${widget.buddy.role} ${widget.buddy.name}\'s Buddy',
                       style: TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromARGB(0, 239, 235, 235),
         elevation: 0,
@@ -265,7 +590,7 @@ class _BuddyDetailPageState extends State<BuddyDetailPage> {
             ),
             const SizedBox(height: 15),
             Text(
-              '${widget.carereceiver.crname} is feeling $mood',
+              '${widget.buddy.role} ${widget.buddy.name} is feeling $mood',
               style: const TextStyle(
                     color: Colors.white,
                     fontSize: 17,
@@ -299,13 +624,20 @@ class _BuddyDetailPageState extends State<BuddyDetailPage> {
                   },
                 ),
                 _actionButton(
-                  icon: Icons.notifications ,
+                  icon: Icons.notifications,
                   label: 'Reminder',
                   color: const Color.fromARGB(255, 255, 166, 34),
                   onTap: () {
+                    final uid = FirebaseAuth.instance.currentUser!.uid; // <-- add this (import firebase_auth)
+
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const ReminderPage()),
+                      MaterialPageRoute(
+                        builder: (_) => ReminderPage(
+                          uid: uid,
+                          buddy: widget.buddy, // pass the Buddy object from BuddyDetailPage
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -371,75 +703,108 @@ class _BuddyDetailPageState extends State<BuddyDetailPage> {
     );
   }
 }
-
 class ReminderPage extends StatefulWidget {
-  const ReminderPage({super.key});
+  final String uid;     // caregiver uid
+  final Buddy buddy;    // which buddy this reminder page belongs to
+
+  const ReminderPage({
+    super.key,
+    required this.uid,
+    required this.buddy,
+  });
 
   @override
   State<ReminderPage> createState() => _ReminderPageState();
 }
 
 class _ReminderPageState extends State<ReminderPage> {
-
-
   final List<Event> _allEvents = []; // Stores ALL events across all dates.
-  
-  // The 'late' variable that caused the error.
-  late DateTime _currentDate = DateTime.now(); // Example
+  late DateTime _currentDate = DateTime.now();
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    // **THE FIX**: Initialize _currentDate here before it's ever used.
     _currentDate = DateTime.now();
+    _loadEventsFromFirestore();
   }
 
-  // Function to add a new event to the list and sort it
+  // Load events from Firestore for this caregiver + buddy
+  Future<void> _loadEventsFromFirestore() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('caregivers')
+          .doc(widget.uid)
+          .collection('buddies')
+          .doc(widget.buddy.buddyId)
+          .collection('events')
+          .orderBy('date')
+          .orderBy('time')
+          .get();
+
+      final loadedEvents = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Event.fromMap(data);
+      }).toList();
+
+      setState(() {
+        _allEvents
+          ..clear()
+          ..addAll(loadedEvents);
+        _loading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading events: $e');
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
+  // Helper: compare only year, month, day
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  // Add event to local list & keep sorted
   void _addEvent(Event newEvent) {
     setState(() {
       _allEvents.add(newEvent);
       _allEvents.sort((a, b) {
-        // First sort by date, then by time
-        int dateComparison = a.date.compareTo(b.date);
+        final dateComparison = a.date.compareTo(b.date);
         if (dateComparison != 0) return dateComparison;
-        return a.time.compareTo(b.time); // Simple string comparison for "HH:mm"
+        return a.time.compareTo(b.time);
       });
     });
   }
 
-  // Function to toggle the announced status of an event
   void _toggleAnnouncedStatus(Event event) {
     setState(() {
       event.isAnnounced = !event.isAnnounced;
-      // Re-sorting is not strictly necessary here but maintains order if needed elsewhere
     });
+    // Optional: update in Firestore too
+    // (you can add this later if you want)
   }
 
-  // Function to handle when a user taps on a day in the picker
   void _onDaySelected(DateTime selectedDate) {
     setState(() {
       _currentDate = selectedDate;
     });
   }
 
-  // Function to build the dynamic row of selectable days
   Widget _buildDayPickerRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: List.generate(7, (index) {
-        // Generate 7 days: 3 before current, current day, 3 after current
         final dateToDisplay = _currentDate.add(Duration(days: index - 3));
 
-        // Check if the generated day is the same as the selected day
-        final bool isSelected = dateToDisplay.day == _currentDate.day &&
-            dateToDisplay.month == _currentDate.month &&
-            dateToDisplay.year == _currentDate.year;
-        
-        // Example of a "special" day, e.g., Saturday
-        final bool isSpecial = dateToDisplay.weekday == DateTime.now();
+        final bool isSelected = _isSameDay(dateToDisplay, _currentDate);
+
+        // This is just a highlight example; currently false most of the time
+        final bool isSpecial = false;
 
         return _buildDayItem(
-          DateFormat('EEE').format(dateToDisplay), // "Mon", "Tue", etc.
+          DateFormat('EEE').format(dateToDisplay),
           dateToDisplay.day.toString(),
           isSelected,
           isSpecial,
@@ -449,8 +814,13 @@ class _ReminderPageState extends State<ReminderPage> {
     );
   }
 
-  // Helper widget for a single day item in the picker
-  Widget _buildDayItem(String day, String date, bool isSelected, bool isSpecial, DateTime fullDate) {
+  Widget _buildDayItem(
+      String day,
+      String date,
+      bool isSelected,
+      bool isSpecial,
+      DateTime fullDate,
+      ) {
     return GestureDetector(
       onTap: () => _onDaySelected(fullDate),
       child: Column(
@@ -459,9 +829,9 @@ class _ReminderPageState extends State<ReminderPage> {
             day,
             style: TextStyle(color: Colors.grey[400], fontSize: 13),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: isSelected
                 ? BoxDecoration(
                     color: Colors.blue.withOpacity(0.3),
@@ -473,7 +843,9 @@ class _ReminderPageState extends State<ReminderPage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: isSelected ? Colors.blue : (isSpecial ? Colors.orange : Colors.white),
+                color: isSelected
+                    ? Colors.blue
+                    : (isSpecial ? Colors.orange : Colors.white),
               ),
             ),
           ),
@@ -482,10 +854,9 @@ class _ReminderPageState extends State<ReminderPage> {
     );
   }
 
-  // Builds the card for displaying a single event
   Widget _buildEventCard(Event event, Function(Event) onToggleStatus) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       color: Colors.white12,
       elevation: 3,
@@ -499,7 +870,7 @@ class _ReminderPageState extends State<ReminderPage> {
                 Expanded(
                   child: Text(
                     event.title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                       color: Colors.white,
@@ -508,35 +879,36 @@ class _ReminderPageState extends State<ReminderPage> {
                 ),
                 Text(
                   event.time,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white70,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               event.description,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: Colors.white70,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Align(
               alignment: Alignment.bottomRight,
               child: ElevatedButton(
                 onPressed: () => onToggleStatus(event),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: event.isAnnounced ? Colors.orange : Colors.blue,
+                  backgroundColor:
+                      event.isAnnounced ? Colors.orange : Colors.blue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 child: Text(
                   event.isAnnounced ? 'Move to Wait' : 'Announce',
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ),
@@ -548,16 +920,23 @@ class _ReminderPageState extends State<ReminderPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter all events to get only the ones for the currently selected date
+    if (_loading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF162D41),
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+      );
+    }
+
     final List<Event> dailyEvents = _allEvents.where((event) {
-      return event.date.year == _currentDate.year &&
-             event.date.month == _currentDate.month &&
-             event.date.day == _currentDate.day;
+      return _isSameDay(event.date, _currentDate);
     }).toList();
 
-    // Separate the daily events into two lists
-    final List<Event> announcedEvents = dailyEvents.where((event) => event.isAnnounced).toList();
-    final List<Event> waitingEvents = dailyEvents.where((event) => !event.isAnnounced).toList();
+    final List<Event> announcedEvents =
+        dailyEvents.where((event) => event.isAnnounced).toList();
+    final List<Event> waitingEvents =
+        dailyEvents.where((event) => !event.isAnnounced).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFF162D41),
@@ -566,11 +945,11 @@ class _ReminderPageState extends State<ReminderPage> {
           icon: const Icon(Icons.navigate_before, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
+        title: const Text(
           'Reminders',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.transparent, // Fully transparent
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Padding(
@@ -579,30 +958,33 @@ class _ReminderPageState extends State<ReminderPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              DateFormat('MMMM d, yyyy').format(_currentDate), // "July 6, 2025"
-              style: TextStyle(color: Colors.white70, fontSize: 16),
+              DateFormat('MMMM d, yyyy').format(_currentDate),
+              style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              DateFormat('EEEE').format(_currentDate), // "Sunday"
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 32, color: Colors.white),
+              DateFormat('EEEE').format(_currentDate),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 32,
+                color: Colors.white,
+              ),
             ),
-            SizedBox(height: 20),
-            
+            const SizedBox(height: 20),
             _buildDayPickerRow(),
-
-            SizedBox(height: 30),
-            
-            Text(
+            const SizedBox(height: 30),
+            const Text(
               'Announced',
               style: TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: Colors.white,
+              ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: announcedEvents.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Text(
                         'No announced events for this day.',
                         style: TextStyle(fontSize: 16, color: Colors.white54),
@@ -611,21 +993,26 @@ class _ReminderPageState extends State<ReminderPage> {
                   : ListView.builder(
                       itemCount: announcedEvents.length,
                       itemBuilder: (context, index) {
-                        return _buildEventCard(announcedEvents[index], _toggleAnnouncedStatus);
+                        return _buildEventCard(
+                          announcedEvents[index],
+                          _toggleAnnouncedStatus,
+                        );
                       },
                     ),
             ),
-            SizedBox(height: 20),
-            
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'Wait to Announce',
               style: TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: Colors.white,
+              ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: waitingEvents.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Text(
                         'No events waiting for this day.',
                         style: TextStyle(fontSize: 16, color: Colors.white54),
@@ -634,7 +1021,10 @@ class _ReminderPageState extends State<ReminderPage> {
                   : ListView.builder(
                       itemCount: waitingEvents.length,
                       itemBuilder: (context, index) {
-                        return _buildEventCard(waitingEvents[index], _toggleAnnouncedStatus);
+                        return _buildEventCard(
+                          waitingEvents[index],
+                          _toggleAnnouncedStatus,
+                        );
                       },
                     ),
             ),
@@ -643,38 +1033,46 @@ class _ReminderPageState extends State<ReminderPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          // Navigate to the AddEventScreen and wait for a result
           final newEvent = await Navigator.of(context).push<Event>(
-            MaterialPageRoute(builder: (context) => AddEventScreen()),
+            MaterialPageRoute(
+              builder: (context) => AddEventScreen(
+                uid: widget.uid,
+                buddy: widget.buddy,
+              ),
+            ),
           );
-          // If the user saved an event (newEvent is not null), add it to the list
+
           if (newEvent != null) {
             _addEvent(newEvent);
           }
         },
-        backgroundColor: Color(0xFFFDCD8B),
-        child: Icon(Icons.add),
+        backgroundColor: const Color(0xFFFDCD8B),
+        child: const Icon(Icons.add),
       ),
     );
   }
 }
-
 class AddEventScreen extends StatefulWidget {
-  const AddEventScreen({super.key});
+  final String uid;      // caregiver UID
+  final Buddy buddy;     // full buddy object (contains buddyId)
+
+  const AddEventScreen({
+    super.key,
+    required this.uid,
+    required this.buddy,
+  });
 
   @override
   State<AddEventScreen> createState() => _AddEventScreenState();
 }
 
 class _AddEventScreenState extends State<AddEventScreen> {
-
   final _formKey = GlobalKey<FormState>();
   String _title = '';
   String _description = '';
   DateTime _selectedDate = DateTime.now();
-  TimeOfDay _selectedTime = TimeOfDay.now(); // Reverted to TimeOfDay for picker
+  TimeOfDay _selectedTime = TimeOfDay.now();
 
-  // Function to pick a date
   Future<void> _pickDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -685,12 +1083,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Color(0xFFFDCD8B), // A yellow/gold for accents
-              onPrimary: Colors.black, // Text color on primary
-              surface: Color(0xFF162D41), // Background of the picker
-              onSurface: Colors.white, // Text color on surface
-            ),
-            dialogBackgroundColor: const Color(0xFF162D41),
+              primary: Color(0xFFFDCD8B),
+              onPrimary: Colors.black,
+              surface: Color(0xFF162D41),
+              onSurface: Colors.white,
+            ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF162D41)),
           ),
           child: child!,
         );
@@ -703,22 +1100,20 @@ class _AddEventScreenState extends State<AddEventScreen> {
     }
   }
 
-  // Function to pick a time using numeric input mode
   Future<void> _pickTime() async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _selectedTime,
-      initialEntryMode: TimePickerEntryMode.input, // THIS IS THE KEY CHANGE
+      initialEntryMode: TimePickerEntryMode.input,
       builder: (context, child) {
         return Theme(
-          data: ThemeData.dark().copyWith( // Apply dark theme to time picker
+          data: ThemeData.dark().copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Color(0xFFFDCD8B), // A yellow/gold for accents
-              onPrimary: Colors.black, // Text color on primary
-              surface: Color(0xFF162D41), // Background of the picker
-              onSurface: Colors.white, // Text color on surface
-            ),
-            dialogBackgroundColor: const Color(0xFF162D41),
+              primary: Color(0xFFFDCD8B),
+              onPrimary: Colors.black,
+              surface: Color(0xFF162D41),
+              onSurface: Colors.white,
+            ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF162D41)),
           ),
           child: child!,
         );
@@ -750,7 +1145,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
           key: _formKey,
           child: ListView(
             children: <Widget>[
-              // Title Input
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Event Title',
@@ -784,8 +1178,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
-
-              // Description Input
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Description',
@@ -814,52 +1206,72 @@ class _AddEventScreenState extends State<AddEventScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
-
-              // Date Picker
               ListTile(
                 title: Text(
-                  'Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)}', // Display only date
+                  'Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)}',
                   style: const TextStyle(color: Colors.white),
                 ),
-                trailing: const Icon(Icons.calendar_today, color: Color(0xFFFDCD8B)), // Gold calendar icon
+                trailing: const Icon(Icons.calendar_today, color: Color(0xFFFDCD8B)),
                 onTap: _pickDate,
               ),
               const SizedBox(height: 8.0),
-
-              // Time Picker (using numeric input mode)
               ListTile(
                 title: Text(
                   'Time: ${_selectedTime.format(context)}',
                   style: const TextStyle(color: Colors.white),
                 ),
-                trailing: const Icon(Icons.access_time, color: Color(0xFFFDCD8B)), // Gold clock icon
-                onTap: _pickTime, // Calls the modified _pickTime function
+                trailing: const Icon(Icons.access_time, color: Color(0xFFFDCD8B)),
+                onTap: _pickTime,
               ),
               const SizedBox(height: 32.0),
-
-              // Save Event Button
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFFDCD8B), // Gold background for the button
-                    foregroundColor: Colors.black, // Black text on gold button
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    backgroundColor: const Color(0xFFFDCD8B),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 15),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0), // Rounded corners
+                      borderRadius: BorderRadius.circular(30.0),
                     ),
-                    elevation: 5, // Slightly raised button
+                    elevation: 5,
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      final newEvent = Event(
-                        title: _title,
-                        description: _description,
-                        date: _selectedDate,
-                        time: _selectedTime.format(context), // Use formatted TimeOfDay
-                        isAnnounced: false, // Default
-                      );
-                      Navigator.of(context).pop(newEvent);
+
+                      try {
+                        final eventData = {
+                          'title': _title,
+                          'description': _description,
+                          'date': Timestamp.fromDate(_selectedDate),
+                          'time': _selectedTime.format(context),
+                          'isAnnounced': false,
+                          'createdAt': Timestamp.now(),
+                        };
+
+                        await FirebaseFirestore.instance
+                            .collection('caregivers')
+                            .doc(widget.uid)
+                            .collection('buddies')
+                            .doc(widget.buddy.buddyId)
+                            .collection('events')
+                            .add(eventData);
+
+                        final newEvent = Event(
+                          title: _title,
+                          description: _description,
+                          date: _selectedDate,
+                          time: _selectedTime.format(context),
+                          isAnnounced: false,
+                        );
+
+                        Navigator.of(context).pop(newEvent);
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Error saving event: $e")),
+                        );
+                      }
                     }
                   },
                   child: const Text(

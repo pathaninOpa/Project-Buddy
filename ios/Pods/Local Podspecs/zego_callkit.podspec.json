@@ -1,0 +1,28 @@
+{
+  "name": "zego_callkit",
+  "version": "1.0.0",
+  "summary": "ZEGO Callkit for Flutter.",
+  "description": "Callkit Flutter SDK is a flutter plugin wrapper based on ZIM native iOS SDK.",
+  "homepage": "https://www.zego.im",
+  "license": {
+    "file": "../LICENSE"
+  },
+  "authors": {
+    "Your Company": "developer@zego.im"
+  },
+  "source": {
+    "path": "."
+  },
+  "source_files": "Classes/**/*",
+  "public_header_files": "Classes/**/*.h",
+  "dependencies": {
+    "Flutter": []
+  },
+  "platforms": {
+    "ios": "11.0"
+  },
+  "pod_target_xcconfig": {
+    "DEFINES_MODULE": "YES",
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]": "i386"
+  }
+}

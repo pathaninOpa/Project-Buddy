@@ -1,0 +1,6 @@
+framework module zego_callkit {
+  umbrella header "zego_callkit-umbrella.h"
+
+  export *
+  module * { export * }
+}
