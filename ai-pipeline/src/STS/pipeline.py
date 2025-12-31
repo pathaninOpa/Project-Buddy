@@ -228,8 +228,7 @@ You control a video calling system. You MUST detect if the user wants to **conta
 
     def inference(self, transcribedText: str, uid: str | None = None, buddy_id: str | None = None, active_reminders_text: str = "") -> tuple[str, bool]:
         from ollama import Client
-        # Set a 30-second timeout to prevent infinite hanging
-        client = Client(host=os.getenv("OLLAMA_HOST", "http://localhost:11434"), timeout=30)
+        client = Client(host=os.getenv("OLLAMA_HOST", "http://localhost:11434"), timeout=60)
         
         if re.search(r"(?:ช่วย)?\s*(?:โทร|ติดต่อ|คุย)\s*(?:หา|กับ)", transcribedText, re.IGNORECASE):
             print(f"[FAST PATH] Call intent detected in: '{transcribedText}'. Bypassing LLM.", flush=True)
@@ -283,13 +282,11 @@ You control a video calling system. You MUST detect if the user wants to **conta
             )
             print(f"[LLM DEBUG] Raw response: {response}", flush=True)
             if response.get('done_reason') == 'length':
-                print("[LLM WARNING] LLM response truncated due to token limit (done_reason='length').", flush=True)
-            
+                print("[LLM WARNING] LLM response truncated due to token limit (done_reason ='length').",flush=True)            
             assistant_response = ""
             
             if response.get('message', {}).get('tool_calls'):
                 print(f"[LLM] Model decided to use tools: {len(response['message']['tool_calls'])}", flush=True)
-                intermediary_audio = tts_client.genVoice("กำลังตรวจสอบข้อมูลสักครู่นะครับ")
                 self.conversation_history.append(response['message'])
                 
                 for tool_call in response['message']['tool_calls']:
@@ -326,18 +323,10 @@ You control a video calling system. You MUST detect if the user wants to **conta
                 assistant_response = final_response['message']['content']
             else:
                 assistant_response = response['message']['content']
-
-            if not assistant_response:
-                print("[LLM WARNING] Empty response content detected. Providing fallback.", flush=True)
-                assistant_response = "ขอโทษครับ ระบบประมวลผลไม่ทัน กรุณาลองใหม่อีกครั้งนะครับ"
-
-            # Remove <think>...</think> blocks from reasoning models
             assistant_response = re.sub(r"<think>.*?</think>", "", assistant_response, flags=re.DOTALL).strip()
-
             if not assistant_response:
                 print("[LLM WARNING] Response empty after stripping <think> tags. Fallback.", flush=True)
                 assistant_response = "ขออภัยครับ ระบบขัดข้องชั่วคราว"
-
             assistant_response = re.sub(r"Khun Ta", "คุณตา", assistant_response, flags=re.IGNORECASE)
             assistant_response = re.sub(r"Khun Yai", "คุณยาย", assistant_response, flags=re.IGNORECASE)
             assistant_response = re.sub(r"ค่ะ", "ครับ", assistant_response)

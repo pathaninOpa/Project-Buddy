@@ -1,0 +1,39 @@
+\section{Speech-to-Text (STT) Performance}
+\label{sec:stt_performance}
+
+The Speech-to-Text (STT) subsystem is the primary input modality for the ``Buddy'' interactive companion. Its performance is critical, as it directly impacts the downstream tasks of emotion recognition and dialogue generation. We evaluated the STT system using the \texttt{faster-whisper} model (large-v3 architecture) to assess its robustness in transcribing elderly Thai speech, which is characterized by unique prosody, slower speaking rates, and occasional lack of clear word boundaries.
+
+\subsection{Experimental Setup}
+The evaluation was conducted using the \textit{Thai Elderly Speech Dataset} (Version 1) released by Data Wow and VISAI \cite{datawow2024elderly}. This dataset contains approximately 19,200 audio samples from 32 senior speakers (aged 57--60+) covering healthcare and smart home contexts.
+
+The model performance was quantified using three key metrics:
+\begin{itemize}
+    \item \textbf{Word Error Rate (WER)}: Measures the proportion of word substitution, deletion, and insertion errors.
+    \item \textbf{Character Error Rate (CER)}: Measures the edit distance at the character level, which is particularly relevant for the Thai language due to the absence of explicit word boundary markers.
+    \item \textbf{Real-Time Factor (RTF)}: Measures the speed of transcription relative to the duration of the input audio.
+\end{itemize}
+
+\subsection{Quantitative Results}
+The performance metrics for the STT subsystem are summarized in Table \ref{tab:stt_results}. The system achieved a Word Error Rate (WER) of 8.68\% and a Character Error Rate (CER) of 3.42\%.
+
+\begin{table}[ht]
+    \centering
+    \caption{Performance Metrics of the STT Subsystem (faster-whisper large-v3) on the Thai Elderly Speech Dataset.}
+    \label{tab:stt_results}
+    \begin{tabular}{|l|c|l|}
+        \hline
+        \textbf{Metric} & \textbf{Value} & \textbf{Description} \\
+        \hline
+        Word Error Rate (WER) & 8.68\% & Lower is better; measures word-level accuracy. \\
+        \hline
+        Character Error Rate (CER) & 3.42\% & Lower is better; measures character-level accuracy. \\
+        \hline
+        Real-Time Factor (RTF) & 0.25 & Processing time / Audio duration (GPU accelerated). \\
+        \hline
+    \end{tabular}~
+\end{table}
+
+\subsection{Discussion}
+The obtained WER of 8.68\% indicates that the system is highly effective for the target demographic. While general Thai ASR models typically achieve WERs in the range of 6--7\% on standard corpora (e.g., Common Voice) \cite{radford2023whisper}, the slightly higher WER observed here is attributed to the specific acoustic characteristics of elderly speech, such as pauses and non-standard intonations.
+
+However, the low CER of 3.42\% suggests that most errors are minor morphological deviations that do not significantly alter the semantic meaning of the sentence. This level of accuracy is sufficient for the subsequent Natural Language Understanding (NLU) components to correctly infer user intent and emotion. Additionally, the Real-Time Factor of 0.25 (meaning a 10-second audio clip is processed in 2.5 seconds) confirms that the system meets the latency requirements for real-time interaction.

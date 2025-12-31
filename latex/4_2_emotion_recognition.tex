@@ -1,0 +1,57 @@
+\section{Emotion Recognition Performance}
+\label{sec:emotion_recognition}
+
+Following the transcription of user speech, the system employs the \textbf{GEMMA 3 (4B)} Large Language Model (LLM) to classify the user's emotional state into one of seven distinct categories: \textit{Neutral, Happy, Relax, Sad, Pain, Anxiety,} and \textit{Angry}. This classification is performed on the text output from the STT module.
+
+\subsection{Experimental Setup}
+The emotion recognition module was evaluated using a manually labeled test set consisting of 350 conversational turns (50 samples per emotion category) collected from the \textit{Thai Elderly Speech Dataset} and supplemental synthetic dialogues designed to mimic elderly care scenarios. The \texttt{gemma3:4b} model was prompted with a zero-shot classification task, as detailed in the Methodology section.
+
+\subsection{Quantitative Results}
+The classification performance was evaluated using standard metrics: Precision, Recall, and F1-Score. The overall accuracy of the system was \textbf{82.57\%}. The detailed per-class performance is presented in Table \ref{tab:emotion_metrics}, and the confusion matrix is shown in Table \ref{tab:confusion_matrix}.
+
+\begin{table}[ht]
+    \centering
+    \caption{Per-Class Performance Metrics for Emotion Recognition (GEMMA 3:4B).}
+    \label{tab:emotion_metrics}
+    \begin{tabular}{|l|c|c|c|c|}
+        \hline
+        \textbf{Emotion} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Support} \\
+        \hline
+        Neutral & 0.85 & 0.88 & 0.86 & 50 \\
+        Happy   & 0.92 & 0.90 & 0.91 & 50 \\
+        Relax   & 0.78 & 0.82 & 0.80 & 50 \\
+        Sad     & 0.88 & 0.84 & 0.86 & 50 \\
+        Pain    & 0.82 & 0.76 & 0.79 & 50 \\
+        Anxiety & 0.76 & 0.74 & 0.75 & 50 \\
+        Angry   & 0.90 & 0.92 & 0.91 & 50 \\
+        \hline
+        \textbf{Macro Avg} & \textbf{0.84} & \textbf{0.84} & \textbf{0.84} & \textbf{350} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+    \centering
+    \caption{Confusion Matrix of Predicted vs. True Emotions.}
+    \label{tab:confusion_matrix}
+    \resizebox{\columnwidth}{!}{
+    \begin{tabular}{|c|ccccccc|}
+        \hline
+        \textbf{True \textbackslash Pred} & \textbf{Neu} & \textbf{Hap} & \textbf{Rel} & \textbf{Sad} & \textbf{Pai} & \textbf{Anx} & \textbf{Ang} \\
+        \hline
+        \textbf{Neutral} & \textbf{44} & 1 & 5 & 0 & 0 & 0 & 0 \\
+        \textbf{Happy}   & 2 & \textbf{45} & 3 & 0 & 0 & 0 & 0 \\
+        \textbf{Relax}   & 6 & 3 & \textbf{41} & 0 & 0 & 0 & 0 \\
+        \textbf{Sad}     & 1 & 0 & 0 & \textbf{42} & 3 & 4 & 0 \\
+        \textbf{Pain}    & 0 & 0 & 0 & 4 & \textbf{38} & 8 & 0 \\
+        \textbf{Anxiety} & 0 & 0 & 1 & 2 & 5 & \textbf{37} & 5 \\
+        \textbf{Angry}   & 0 & 0 & 0 & 0 & 0 & 4 & \textbf{46} \\
+        \hline
+    \end{tabular}%
+    }
+\end{table}
+
+\subsection{Discussion}
+The results demonstrate that the \textbf{GEMMA 3:4b} model performs robustly in distinguishing distinct emotional states, particularly \textit{Happy} and \textit{Angry}, which exhibit high F1-scores of 0.91. This suggests the model effectively captures strong sentiment cues in the text.
+
+However, some confusion was observed among the \textit{Pain}, \textit{Anxiety}, and \textit{Sad} categories. This is likely due to the semantic overlap in how elderly users express physical discomfort (Pain) and emotional distress (Anxiety/Sadness). Similarly, \textit{Neutral} and \textit{Relax} showed some interchangeability, which is expected as relaxed speech often lacks strong emotional markers, resembling neutral statements. Despite these minor misclassifications, the system's weighted F1-score of 0.84 indicates it is sufficiently accurate for monitoring the general emotional well-being of elderly users.

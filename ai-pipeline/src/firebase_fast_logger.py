@@ -6,7 +6,7 @@ import os
 
 # Initialize Firebase once
 if not firebase_admin._apps:
-    default_key_path = "secrets/firebase-key-buddy.json" 
+    default_key_path = "../secrets/firebase-key-buddy.json" 
     key_path = os.getenv("FIREBASE_KEY_PATH", default_key_path)
 
     if os.path.exists(key_path):
