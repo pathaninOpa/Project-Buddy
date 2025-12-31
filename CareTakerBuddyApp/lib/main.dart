@@ -4,17 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterapp01/SettingPage.dart';
 import 'package:flutterapp01/userdata.dart';// Your CareGiver class
-import 'dart:convert';
-import 'package:web_socket_channel/io.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'call_screen.dart';
 import 'join_screen.dart';
 import 'SplashPage.dart';
-import 'LoginPage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'GoogleSignIn.dart';
 // improvement review: use คำนำหน้า like granny kat
 
 void main() async { // <--- 1. Make main() asynchronous
@@ -303,7 +297,7 @@ class _BuddyHomePageState extends State<BuddyHomePage> {
                 ),
                 const SizedBox(height: 20),
                 DropdownButtonFormField<String>(
-                  value: gender,
+                  initialValue: gender,
                   dropdownColor: const Color(0xFF162D41),
                   style: const TextStyle(color: Colors.white),
                   items: ["Female", "Male", "Other"]
@@ -1093,8 +1087,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               onPrimary: Colors.black,
               surface: Color(0xFF162D41),
               onSurface: Colors.white,
-            ),
-            dialogBackgroundColor: const Color(0xFF162D41),
+            ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF162D41)),
           ),
           child: child!,
         );
@@ -1120,8 +1113,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               onPrimary: Colors.black,
               surface: Color(0xFF162D41),
               onSurface: Colors.white,
-            ),
-            dialogBackgroundColor: const Color(0xFF162D41),
+            ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF162D41)),
           ),
           child: child!,
         );
